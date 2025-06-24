@@ -1,0 +1,115 @@
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Organisation principale : sidebar + main-content */
+.wrapper {
+    display: flex;
+    height: 90vh;
+    overflow: hidden; /* Empêche le débordement vertical */
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    height: 100%;
+    background: linear-gradient(180deg, #1e3c72, #2a5298);
+    color: white;
+    flex-shrink: 0;
+    min-height: 90vh;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .nav-link {
+    color: #d1d9e6;
+    padding: 15px 20px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-left: 4px solid #ffffff;
+}
+
+.sidebar .sidebar-logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #495057;
+}
+
+/* Zone centrale (scrollable si +700px) */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    max-height: 750px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Logo fixe au centre de l'écran */
+.main-content::before {
+    content: "";
+    position: fixed; /* Changement ici */
+    top: 50%;
+    left: 59%;
+    width: 60%;
+    height: 60%;
+    transform: translate(-50%, -50%);
+    background-image: url('/assets/logo/asecna-logo-2.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    filter: blur(5px);
+    z-index: 0;
+    pointer-events: none; /* Pour éviter d’interférer avec les clics */
+}
+
+/* Assure que le contenu est au-dessus */
+.main-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* Footer design */
+.footer-gradient-dark {
+    background: linear-gradient(90deg, #1f2937 0%, #2d3748 50%, #1f2937 100%);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: #f8fafc;
+    padding: 10px 20px;
+    text-align: center;
+}
+
+
+/* navbar design */
+.navbar-gradient-dark {
+    background: linear-gradient(90deg, #1f2937 0%, #2d3748 50%, #1f2937 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+    color: #f8fafc !important; /* blanc cassé bien lisible */
+    font-weight: 500;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.active {
+    color: #ffffff !important;
+    text-decoration: none;
+}
