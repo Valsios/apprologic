@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASECNA - Approvisionnement et Achat</title>
+  <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+  <!-- CSS locaux -->
+  <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+  <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+  <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+  <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+  <div class="main-content">
+    <div class="table-responsive shadow rounded bg-light p-3">
+      <h3 class="text-black-50 mb-3">Liste des demandes</h3>
+      <!-- Messages d'alerte -->
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <!-- Messages d'alerte -->
+      <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <span th:text="${warning}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <table id="article-table" class="table table-striped table-hover table-bordered">
+        <thead class="table-light">
+        <tr>
+          <th>Id</th>
+          <th>Date demande</th>
+          <th>Consommateur</th>
+          <th>Adresse</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="demandeMere : ${commande_liste}">
+          <td>DM<span th:text="${demandeMere.idDemandeMere}"></span></td>
+          <td th:text="${#temporals.format(demandeMere.dateDemande, 'yyyy-MM-dd''T''HH:mm')}">Date commande</td>
+          <td th:text="${demandeMere.consommateur.description}">Département</td>
+          <td th:text="${demandeMere.adresse.adresse}">Adresse</td>
+          <td>
+            <div class="btn-group" role="group">
+              <form th:action="@{/bordereau/create}" method="post" style="display: inline;">
+                <input type="hidden" name="idBcMere" th:value="${demandeMere.idDemandeMere}">
+                <button type="submit" class="btn btn-action edit" title="Créer Bordereau">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr th:if="${commande_liste.isEmpty()}">
+          <td colspan="3" class="text-center text-muted">Aucune commande trouvée</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script>
+  // Initialisation DataTable
+  $(document).ready(function() {
+    $('#article-table').DataTable({
+      pagingType: "simple_numbers",
+      responsive: true,
+      searching: false,
+      ordering: true,
+      info: false,
+      lengthMenu: [5, 10, 25, 50],
+      language: {
+        paginate: {
+          previous: 'Précédent',
+          next: 'Suivant'
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>

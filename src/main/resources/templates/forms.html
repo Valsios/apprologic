@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casier - Gestion Visuelle</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="tab-content" id="formTabsContent">
+            <!-- Formulaire Simple -->
+            <div class="tab-pane fade show active" id="simpleFormTab" role="tabpanel">
+                <div class="form-section">
+                    <h2 class="form-title">Formulaire de Demande d'Achat</h2>
+
+                    <form id="simpleForm" action="#" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="demandeur" class="form-label">Demandeur</label>
+                                <input type="text" class="form-control" id="demandeur" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="service" class="form-label">Service</label>
+                                <select class="form-select" id="service" required>
+                                    <option value="" selected disabled>Sélectionnez un service</option>
+                                    <option value="finances">Finances</option>
+                                    <option value="logistique">Logistique</option>
+                                    <option value="technique">Technique</option>
+                                    <option value="rh">Ressources Humaines</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="date-demande" class="form-label">Date de Demande</label>
+                                <input type="date" class="form-control" id="date-demande" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="urgence" class="form-label">Niveau d'Urgence</label>
+                                <select class="form-select" id="urgence">
+                                    <option value="normal">Normal</option>
+                                    <option value="moyen">Moyen</option>
+                                    <option value="eleve">Élevé</option>
+                                    <option value="critique">Critique</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description de la Demande</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="reset" class="btn btn-outline-secondary me-2">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bon de Commande -->
+            <div class="tab-pane fade show active" id="bonCommandeTab" role="tabpanel">
+                <div class="form-section">
+                    <h2 class="form-title">Bon de Commande</h2>
+
+                    <form id="bonCommandeForm" action="#" method="post">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="numero-bc" class="form-label">Numéro BC</label>
+                                <input type="text" class="form-control" id="numero-bc" readonly th:value="'BC-' + ${#dates.format(#dates.createNow(), 'yyyy-MM')} + '-001'">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fournisseur" class="form-label">Fournisseur</label>
+                                <select class="form-select" id="fournisseur" required>
+                                    <option value="" selected disabled>Sélectionnez un fournisseur</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="date-commande" class="form-label">Date de Commande</label>
+                                <input type="date" class="form-control" id="date-commande" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Articles Commandés</h5>
+                        <div class="table-responsive shadow rounded bg-light mb-4">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Article</th>
+                                    <th width="120">Référence</th>
+                                    <th width="100">Quantité</th>
+                                    <th width="120">Prix Unitaire</th>
+                                    <th width="120">Montant</th>
+                                    <th width="50" class="table-actions"></th>
+                                </tr>
+                                </thead>
+                                <tbody id="articles-body">
+                                <tr class="article-row">
+                                    <td>
+                                        <input type="text" class="form-control article-name" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control article-ref">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control article-qty" min="1" value="1" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" class="form-control article-price" required>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control article-amount" readonly>
+                                    </td>
+                                    <td class="table-actions">
+                                        <button type="button" class="btn btn-sm btn-danger remove-row">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <button type="button" class="btn btn-secondary" id="add-article">
+                                <i class="bi bi-plus-circle"></i> Ajouter un article
+                            </button>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="conditions" class="form-label">Conditions de Paiement</label>
+                                    <textarea class="form-control" id="conditions" rows="2"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="livraison" class="form-label">Conditions de Livraison</label>
+                                    <textarea class="form-control" id="livraison" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="total-section">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Total HT:</span>
+                                        <span id="total-ht">0,00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>TVA (18%):</span>
+                                        <span id="total-tva">0,00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total TTC:</span>
+                                        <span id="total-ttc">0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary">Enregistrer Brouillon</button>
+                            <div>
+                                <button type="reset" class="btn btn-outline-danger me-2">Annuler</button>
+                                <button type="submit" class="btn btn-primary">Valider la Commande</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fonctionnalités du Bon de Commande
+        const addArticleBtn = document.getElementById('add-article');
+        const articlesBody = document.getElementById('articles-body');
+
+        if (addArticleBtn && articlesBody) {
+            // Ajouter une nouvelle ligne d'article
+            addArticleBtn.addEventListener('click', function() {
+                const newRow = document.querySelector('.article-row').cloneNode(true);
+
+                // Réinitialiser les valeurs des inputs
+                const inputs = newRow.querySelectorAll('input');
+                inputs.forEach(input => {
+                    if (input.type !== 'button') {
+                        input.value = '';
+                        if (input.classList.contains('article-qty')) input.value = '1';
+                        if (input.classList.contains('article-amount')) input.value = '0,00';
+                    }
+                });
+
+                articlesBody.appendChild(newRow);
+                addRowEventListeners(newRow);
+            });
+
+            // Supprimer une ligne d'article
+            function addRowEventListeners(row) {
+                row.querySelector('.remove-row').addEventListener('click', function() {
+                    if (document.querySelectorAll('.article-row').length > 1) {
+                        row.remove();
+                        calculateTotals();
+                    } else {
+                        alert('Vous devez avoir au moins un article dans la commande.');
+                    }
+                });
+
+                // Calcul du montant quand la quantité ou le prix change
+                const qtyInput = row.querySelector('.article-qty');
+                const priceInput = row.querySelector('.article-price');
+                const amountInput = row.querySelector('.article-amount');
+
+                function calculateAmount() {
+                    const qty = parseFloat(qtyInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    const amount = qty * price;
+                    amountInput.value = amount.toFixed(2).replace('.', ',');
+                    calculateTotals();
+                }
+
+                qtyInput.addEventListener('change', calculateAmount);
+                priceInput.addEventListener('change', calculateAmount);
+                priceInput.addEventListener('input', calculateAmount);
+            }
+
+            // Calcul des totaux
+            function calculateTotals() {
+                let totalHT = 0;
+                document.querySelectorAll('.article-row').forEach(row => {
+                    const amount = parseFloat(row.querySelector('.article-amount').value.replace(',', '.')) || 0;
+                    totalHT += amount;
+                });
+
+                const tvaRate = 0.18;
+                const totalTVA = totalHT * tvaRate;
+                const totalTTC = totalHT + totalTVA;
+
+                document.getElementById('total-ht').textContent = totalHT.toFixed(2).replace('.', ',');
+                document.getElementById('total-tva').textContent = totalTVA.toFixed(2).replace('.', ',');
+                document.getElementById('total-ttc').textContent = totalTTC.toFixed(2).replace('.', ',');
+            }
+
+            // Initialiser les écouteurs d'événements pour la première ligne
+            addRowEventListeners(document.querySelector('.article-row'));
+
+            // Gestion de la soumission du formulaire
+            document.getElementById('bonCommandeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Bon de commande validé avec succès!');
+            });
+        }
+
+        // Gestion de la soumission du formulaire simple
+        document.getElementById('simpleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Demande d\'achat soumise avec succès!');
+        });
+    });
+</script>
+</body>
+</html>

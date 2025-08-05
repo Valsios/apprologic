@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Facture 2025-MG-1735</title>
+  <style>
+    /* Style principal */
+    body {
+      font-family: "Arial", sans-serif !important;
+      font-size: 13px;
+      margin: 40px;
+      line-height: 1.4;
+      margin-bottom: 25mm; /* Espace réservé pour le footer */
+    }
+
+    /* Définition des marges et pied de page */
+    @page {
+      size: A4;
+      margin: 10mm 15mm 20mm 15mm; /* Top Right Bottom Left */
+
+      @bottom-left {
+        content: "DGRP/MA/ACC/TGS";
+        font-size: 10px;
+        color: #666;
+      }
+
+      @bottom-right {
+        content: "Page " counter(page) " sur " counter(pages);
+        font-size: 10px;
+      }
+    }
+
+    /* En-tête - Blocs gauche/droite */
+    .header-section {
+      width: 100%;
+      margin-bottom: 20px;
+      overflow: hidden; /* Clearfix */
+    }
+
+    .left-block {
+      width: 48%;
+      float: left;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 5px;
+    }
+
+    .right-block {
+      width: 48%;
+      float: right;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 5px;
+    }
+
+    /* Section principale */
+    .main-title {
+      text-align: center;
+      font-weight: bold;
+      margin: 20px 0;
+      text-transform: uppercase;
+      clear: both; /* S'assure qu'il est en dessous des floats */
+    }
+
+    .section-infos div {
+      margin-bottom: 5px;
+    }
+
+    /* Tableau */
+    #data {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      border: 1px solid #000 !important;
+    }
+
+    #data thead {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #000;
+    }
+
+    #data th, #data td {
+      font-size: 13px;
+      vertical-align: middle;
+      padding: 8px;
+      border: 1px solid #000 !important;
+      text-align: left;
+    }
+
+    #data th {
+      font-weight: bold;
+      background-color: #f1f1f1;
+    }
+
+    #data tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .total-row {
+      background-color: #e9ecef !important;
+      font-weight: bold;
+    }
+
+    .total-row td {
+      border-top: 2px solid #000 !important;
+    }
+
+    /* Pied de page - Observation et signature */
+    .footer-infos {
+      width: 100%;
+      margin-top: 30px;
+      overflow: hidden; /* Clearfix */
+    }
+
+    .footer-left {
+      width: 48%;
+      float: left;
+      box-sizing: border-box;
+    }
+
+    .footer-right {
+      width: 48%;
+      float: right;
+      text-align: right;
+      box-sizing: border-box;
+    }
+
+    /* Signature */
+    .signature-line {
+      margin-top: 30px;
+      border-top: 1px solid #000;
+      width: 200px;
+      display: inline-block;
+    }
+
+    /* Numéro de page */
+    .page-footer {
+      text-align: right;
+      font-size: 12px;
+      margin-top: 40px;
+      clear: both; /* S'assure qu'il est en dessous des floats */
+    }
+
+    /* Corrections spécifiques pour PDF */
+    .header-section, .footer-infos {
+      page-break-inside: avoid; /* Empêche la coupure sur plusieurs pages */
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Forcer les bordures visibles */
+    table, th, td {
+      border-color: #000 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="facture-title"></div>
+
+<div class="header-section">
+  <div class="left-block">
+    <img th:src="@{classpath:/static/assets/logo/asecna-logo-2.png}" alt="Logo" width="60" height="60"/>
+    <p><strong>REPRESENTATION DE MADAGASCAR B.P. 46 IVATO - AEROPORT</strong></p>
+    <p>DGRP/MA/ACC</p>
+    <p>Unité Transit et Gestion de Stocks</p>
+  </div>
+  <div class="right-block" style="margin-top: 10%">
+
+    <p><strong>BORDEREAU D'EXPEDITION DE MATERIEL À TITRE GRATUIT</strong> </p>
+    <p><strong>FACTURE N° <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span>-MG-<span th:text="${mere.idBordereauMere}"></span></strong></p>
+    <!-- Consommateur -->
+    <p><span th:text="${mere.demandeMere.consommateur.description}"></span></p>
+    <p><span th:text="${mere.demandeMere.adresse.adresse}"></span></p>
+
+  </div>
+</div>
+
+<div class="main-title"></div>
+
+<div class="section-infos">
+  <div><strong>Date bordereau :</strong>  <span th:text="${#temporals.format(mere.dateBordereau, 'dd/MM/yyyy')}"></span></div>
+  <div><strong>Références :</strong> <span th:text="${mere.description}"></span></div>
+  <div><strong>Origine :</strong> IVATO</div>
+</div>
+
+<table id="data">
+  <thead>
+  <tr>
+    <th>Désignation</th>
+    <th>Qté</th>
+    <th>P.U</th>
+    <th>Prix total</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="fille : ${filles}">
+    <td>
+      <span th:text="${fille.demandeFille.article.codeArticle}"></span> -
+      <span th:text="${fille.demandeFille.article.designation}"></span>
+    </td>
+    <td th:text="${#numbers.formatDecimal(fille.quantiteSortie, 1, 2)}"></td>
+    <td th:text="${#numbers.formatDecimal(fille.prixUnitaire, 1, 2)}"></td>
+    <td th:text="${#numbers.formatDecimal(fille.geTotal(), 1, 2)}"></td>
+  </tr>
+  <tr class="total-row">
+    <td colspan="3">TOTAL</td>
+    <td th:text="${#numbers.formatDecimal(total, 1, 2)}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<div class="footer-infos">
+  <div class="footer-left">
+    <p>Observation </p>
+    <p>Transport :<span th:text="${mere.transport.type}"></span></p>
+    <p>Poids : <span th:text="${#numbers.formatDecimal(mere.poids, 1, 2)}"></span></p>
+    <p>Colisage :<span th:text="${mere.colisage}"></span></p>
+    <p>Reçu le :</p>
+    <p>à : </p>
+  </div>
+  <div class="footer-right">
+    <p>Ivato le,<span th:text="${#temporals.format(mere.dateBordereau, 'dd/MM/yyyy')}"></span></p>
+    <p><strong>Le Chef Unité TGS</strong></p>
+    <div class="signature-line"></div>
+    <p><span th:text="${userName}"></span></p>
+  </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Approvisionnement et Achat</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="table-responsive shadow rounded bg-light p-3">
+            <h3 class="text-black-50 mb-3">Liste des bordereaux</h3>
+
+
+            <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                <span th:text="${warning}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+
+
+            <table id="article-table" class="table table-striped table-hover table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Id</th>
+                    <th>Date demande</th>
+                    <th>Consommateur</th>
+                    <th>Adresse</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="bordereau : ${bordereau_liste}">
+                    <td >BD<span th:text="${bordereau.demandeMere.idDemandeMere}"></span></td>
+                    <td th:text="${#temporals.format(bordereau.demandeMere.dateDemande,'dd/MM/yyyy HH:mm')}">Date commande</td>
+                    <td th:text="${bordereau.demandeMere.consommateur.description}">Département</td>
+                    <td th:text="${bordereau.demandeMere.adresse.adresse}">Adresse</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <form th:action="@{/documents/generer-bordereau}" method="post" style="display: inline;">
+                                <input type="hidden" name="idBordereau" th:value="${bordereau.idBordereauMere}">
+                                <button type="submit" class="btn btn-action edit" title="Créer pdf">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${bordereau_liste.isEmpty()}">
+                    <td colspan="3" class="text-center text-muted">Aucun bordereau trouvé</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script>
+    // Initialisation DataTable
+    $(document).ready(function() {
+        $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false,
+            ordering: true,
+            info: false,
+            lengthMenu: [5, 10, 25, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

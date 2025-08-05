@@ -1,0 +1,113 @@
+body {
+    background: linear-gradient(90deg, #1f2937 0%, #2d3748 50%, #1f2937 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-card {
+    background-color: rgba(31, 41, 55, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 1px solid #4a5568;
+    width: 100%;
+    max-width: 420px;
+}
+
+.logo-container {
+    padding: 2rem 1rem 1rem;
+    text-align: center;
+}
+
+.asecna-logo {
+    height: 80px;
+    width: auto;
+}
+
+.form-container {
+    padding: 1.5rem 2rem 2rem;
+}
+
+.form-title {
+    color: #e2e8f0;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-control {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: white;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    background-color: #2d3748;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 0.25rem rgba(66, 153, 225, 0.25);
+    color: white;
+}
+
+.btn-login {
+    background-color: #4299e1;
+    border: none;
+    padding: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #3182ce;
+}
+
+.form-label {
+    color: #cbd5e0;
+    margin-bottom: 0.5rem;
+}
+
+.footer-text {
+    color: #a0aec0;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+/* Ajoutez ces styles à votre fichier login.css */
+
+/* Style personnalisé pour l'alerte d'erreur */
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    border-color: rgba(220, 53, 69, 0.3) !important;
+    color: #f8d7da !important;
+    border-left: 4px solid #dc3545;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation d'apparition */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Style pour les champs invalides */
+.is-invalid {
+    border-color: #dc3545 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    padding-right: 2.25rem;
+}
+
+/* Optionnel : animation de shake pour les champs invalides */
+.is-invalid:focus {
+    animation: shake 0.5s;
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}

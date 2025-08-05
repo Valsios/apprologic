@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="navbar">
+    <style>
+        /* Styles pour les icônes */
+        .nav-icon {
+            color: white !important;
+            font-size: 1.25rem;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-icon:hover {
+            opacity: 0.8;
+        }
+
+        /* Dropdown de notifications */
+        .notification-dropdown {
+            margin-right: 10%;
+            width: 350px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 0.75rem 1rem;
+        }
+
+        #spanNotification{
+            width: 20px;
+            height: 20px;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background-color: #ff6b6b;
+            border-color: #f8f9fa;
+        }
+
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-gradient-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+                <img src="/assets/logo/asecna-logo-2.png" alt="Logo" width="30" height="30" class="me-2">
+                Apprologic
+            </a>
+
+            <div class="d-flex align-items-center">
+                <!-- Notification Dropdown -->
+                <div class="dropdown me-4">
+                    <a class="position-relative" href="#" role="button" id="notificationDropdown"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell-fill nav-icon"></i>
+                        <span
+                                id="spanNotification"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger border border-2 border-white"
+                              th:if="${unreadCount > 0}"
+                              th:text="${unreadCount}">
+
+                        </span>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end notification-dropdown"
+                         aria-labelledby="notificationDropdown">
+                        <h6 class="dropdown-header">Alertes de réapprovisionnement</h6>
+                        <div th:if="${unreadCount == 0}">
+                            <div class="notification-item text-muted">
+                                Aucune alerte aujourd'hui
+                            </div>
+                        </div>
+                        <div th:each="alert : ${notifications}">
+                            <div class="notification-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong th:text="${alert.article.designation}"></strong>
+                                    <span class="badge bg-primary">
+                            <span th:text="${alert.quantiteRecommandee.intValue()}"></span> unités
+                        </span>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted"
+                                           th:text="${#temporals.format(alert.dateCreation, 'dd/MM HH:mm')}"></small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ajout du bouton "Tout marquer comme lu" -->
+                        <div class="dropdown-divider"></div>
+                        <div class="text-center p-2">
+                            <form th:action="@{/notifications/mark-as-read}" method="post" class="p-2">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-success w-100">
+                                    <i class="bi bi-check-all me-2"></i>
+                                    Tout marquer comme lu
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Menu Dropdown Utilisateur -->
+                <div class="dropdown" sec:authorize="isAuthenticated()">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                       href="#" role="button" id="userDropdown"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle nav-icon me-2"></i>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li class="dropdown-item">
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold" sec:authentication="name"></span>
+                                <small class="text-muted" th:text="${#authentication.principal.nom} ?: ${#authentication.name}"></small>
+                            </div>
+                        </li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="dropdown-item d-flex align-items-center">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+
+    </nav>
+</div>
+
+<!-- À placer en bas de votre fichier HTML -->
+<div class="position-fixed bottom-0 end-0 p-3">
+    <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Toutes les notifications ont été marquées comme lues
+        </div>
+    </div>
+</div>
+</body>
+</html>

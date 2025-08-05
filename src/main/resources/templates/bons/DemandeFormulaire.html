@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Approvisionnement et Achat</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/dropdown.css}">
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="tab-content" id="formTabsContent">
+
+
+            <!-- Bon de Commande -->
+            <div class="tab-pane fade show active" id="bonCommandeTab" role="tabpanel">
+                <div class="form-section">
+                    <h2 class="form-title">Demande matériels</h2>
+
+                    <!-- Messages d'alerte -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+
+                    <form id="bonCommandeForm" th:action="@{/demande/save}" method="post">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="adresse" class="form-label">Adresse</label>
+                                    <select class="form-select" id="adresse" name="adresse" required>
+                                        <option value="" selected disabled>Sélectionnez une Adresse</option>
+                                        <option th:each="adresse : ${adresse_liste}"
+                                                th:value="${adresse.idAdresse}"
+                                                th:text="${adresse.adresse}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="date-commande" class="form-label">Date de demande</label>
+                                    <input type="datetime-local" class="form-control" name="date-commande" id="date-commande" th:value="${#temporals.format(#temporals.createNow(),  'yyyy-MM-dd''T''HH:mm')}" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="consommateur" class="form-label">Consommateur</label>
+                                    <select class="form-select" id="consommateur" name="consommateur" required>
+                                        <option value="" selected disabled>Sélectionnez un Consommateur</option>
+                                        <option th:each="consommateur : ${consommateur_liste}"
+                                                th:value="${consommateur.idConsommateur}"
+                                                th:text="${consommateur.description}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="code-pgi" class="form-label">Code PGI</label>
+                                    <input type="text" class="form-control" id="code-pgi" name="codePgi" placeholder="Entrez le code PGI">
+                                </div>
+                            </div>
+
+                            <div class="col-md-4" id="enfant-container" style="display:none;">
+                                <label for="consommateur-enfant" class="form-label">Site/Filiale</label>
+                                <select class="form-select" id="consommateur-enfant" name="consommateurEnfant">
+                                    <option value="" selected>Sélectionnez un site/filiale (optionnel)</option>
+                                    <!-- Les options seront ajoutées dynamiquement -->
+                                </select>
+                            </div>
+
+
+
+                        </div>
+
+                        <h5 class="mb-3">Articles Commandés</h5>
+                        <div class="table-responsive shadow rounded bg-light mb-4">
+                            <table id="lignesCommande" class="table">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Quantité(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody id="articles-body">
+                                <tr class="template-row" style="display:none;">
+                                    <td>
+                                        <input name="lignesX.idArticle" type="hidden">
+                                        <input type="text" class="form-control article-ref">
+                                    </td>
+                                    <td>
+                                        <input name="lignesX.quantite" type="number" class="form-control article-qty" min="1" value="1">
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger remove-row">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- Les lignes existantes seront ajoutées ici -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <button type="button" class="btn btn-secondary" id="add-article">
+                                <i class="bi bi-plus-circle"></i> Ajouter un article
+                            </button>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <div>
+                                <button type="submit" class="btn btn-primary">Valider la Commande</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+
+<script src="/assets/js/myScript/scriptCommande.js"></script>
+</body>
+</html>

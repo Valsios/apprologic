@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Approvisionnement et Achat</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="tab-content" id="formTabsContent">
+            <!-- Formulaire Simple -->
+            <div class="tab-pane fade show active" id="simpleFormTab" role="tabpanel">
+                <div class="form-section">
+                    <h2 class="form-title">
+                        <i class="bi bi-box-seam me-2"></i>Modifier Article
+                    </h2>
+
+
+                    <form th:action="@{/article/updateOrSave}"
+                          th:object="${article}"
+                          method="post">
+
+                        <input type="text" class="form-control"
+                               th:field="*{idArticle}" hidden>
+
+                        <input type="text" class="form-control"
+                               th:field="*{udm}" hidden>
+
+                        <div class="mb-3">
+                            <label for="codePgi" class="form-label">Code Article</label>
+                            <input type="text" class="form-control" id="codePgi"
+                                   th:field="*{codeArticle}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="designation" class="form-label">Désignation</label>
+                            <input type="text" class="form-control" id="designation"
+                                   th:field="*{designation}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="seuil" class="form-label">Seuil minimum</label>
+                            <input type="number" class="form-control" id="seuil"
+                                   th:field="*{seuilMin}" required>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">Soumettre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+
+</body>
+</html>

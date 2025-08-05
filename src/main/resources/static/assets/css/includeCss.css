@@ -1,3 +1,6 @@
+
+
+/* CSS */
 body {
     margin: 0;
     background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
@@ -113,3 +116,47 @@ body {
     color: #ffffff !important;
     text-decoration: none;
 }
+
+/* style des boutons */
+.actions {
+    white-space: nowrap;
+    width: 1%;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    padding: 5px 8px;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: all 0.3s;
+    color: #6c757d;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+}
+
+.btn-action.edit:hover {
+    color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.btn-action.delete:hover {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.btn-action.confirm:hover {
+    color: #198754;
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.card-body canvas {
+    display: block; /* Évite l'espace sous le canvas */
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+

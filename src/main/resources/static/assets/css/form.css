@@ -1,0 +1,51 @@
+:root {
+    --asecna-primary: #1f2937;
+    --asecna-secondary: #2d3748;
+    --asecna-accent: #4299e1;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+.form-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.form-title {
+    color: var(--asecna-primary);
+    border-bottom: 2px solid var(--asecna-accent);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.nav-tabs .nav-link {
+    color: var(--asecna-primary);
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--asecna-accent);
+    font-weight: 600;
+    border-bottom: 3px solid var(--asecna-accent);
+}
+
+.table-actions {
+    white-space: nowrap;
+    width: 1%;
+}
+
+.total-section {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 1rem;
+}
+
+#bonCommandeTab .form-control:disabled,
+#bonCommandeTab .form-control[readonly] {
+    background-color: #e9ecef;
+}

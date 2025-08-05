@@ -1,0 +1,98 @@
+
+/* Assure que le footer colle en bas si le contenu est court */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Conteneur flex entre sidebar et contenu principal */
+.layout-container {
+    flex: 1;
+    display: flex;
+}
+
+/* Main content : gère le padding et adapte bien l'espace */
+.main-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    height: calc(100vh - 56px - 56px); /* 100vh - navbar - footer */
+}
+
+
+/* Style personnalisé pour le footer */
+.custom-footer {
+    background: linear-gradient(135deg, #343a40 0%, #2c3136 100%);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+}
+
+
+
+
+
+/* Version mobile */
+.list-group-item {
+    transition: all 0.2s;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+@media (max-width: 991.98px) {
+    .list-group-item {
+        padding: 1rem 1.25rem;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Style pour les fieldset */
+fieldset {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+fieldset:hover {
+    background-color: #f1f3f5;
+    border-color: #dee2e6 !important;
+}
+
+legend {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+/* Style pour les inputs */
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Style pour les boutons */
+.btn-outline-primary:hover {
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .d-flex.justify-content-between > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

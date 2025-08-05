@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Approvisionnement et Achat</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="table-responsive shadow rounded bg-light p-3">
+            <h3 class="text-black-50 mb-3">Anomalies de stock</h3>
+            <table id="article-table" class="table table-striped table-hover table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Article</th>
+                    <th>Description</th>
+                    <th>Stock théorique</th>
+                    <th>Stock physique</th>
+                    <th>Date inventaire</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="anomalie : ${anomalie_list}">
+                    <td>
+                        <strong th:text="${anomalie.article.codeArticle}"></strong>-
+                        <span th:text="${anomalie.article.designation}"></span>
+
+                    </td>
+                    <td th:if="${anomalie.isColor_check()}"
+                        class="text-success text-center"
+                        th:text="${anomalie.description}">Description</td>
+                    <td th:if="${!anomalie.isColor_check()}"
+                        class="text-danger text-center"
+                        th:text="${anomalie.description}">Description</td>
+                    <td th:text="${anomalie.stock_theorique}">Stock théorique</td>
+                    <td th:text="${anomalie.stock_physique}">Stock physique</td>
+                    <td th:text="${#temporals.format(anomalie.dateInventaire,'dd/MM/yyyy HH:mm')}">Date inventaire</td>
+
+                </tr>
+                <tr th:if="${anomalie_list.isEmpty()}">
+                    <td colspan="3" class="text-center text-muted">Aucun article trouvé</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script>
+    // Initialisation DataTable
+    $(document).ready(function() {
+        $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false,
+            ordering: true,
+            info: false,
+            lengthMenu: [5, 10, 25, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

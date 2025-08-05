@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Approvisionnement et Achat</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="table-responsive shadow rounded bg-light p-3">
+            <h3 class="text-black-50 mb-3">Liste des Articles</h3>
+            <div class="search-container" style="width: 300px;">
+                <div class="input-group">
+                    <meta name="_csrf" th:content="${_csrf.token}"/>
+                    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+                    <select id="searchType" class="form-select border-end-0 rounded-start" style="width: 30px;">
+                        <option value="code">Code</option>
+                        <option value="designation">Désignations</option>
+                    </select>
+                    <input type="text" id="searchInput" class="form-control border-end-1" placeholder="Rechercher..." style="width: 100px">
+                </span>
+                </div>
+            </div>
+            <table id="article-table" class="table table-striped table-hover table-bordered">
+                <thead class="table-light">
+                <tr>
+                    <th>Code PGI</th>
+                    <th>Désignation</th>
+                    <th>Seuil minimum</th>
+                    <th>UDM</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="article : ${liste_article}">
+                    <td th:text="${article.codeArticle}">CODE123</td>
+                    <td th:text="${article.designation}">Nom de l'article</td>
+                    <td th:text="${article.seuilMin}">Seuil</td>
+                    <td th:text="${article.udm.acronyme}">Unité de mésure</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a class="btn btn-action edit" title="Modifier"
+                               th:href="@{'/article/edit/' + ${article.idArticle}}">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${liste_article.isEmpty()}">
+                    <td colspan="3" class="text-center text-muted">Aucun article trouvé</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script src="/assets/js/myScript/searchArticle.js"></script>
+<script>
+    // Initialisation DataTable
+    $(document).ready(function() {
+        $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false,
+            ordering: true,
+            info: false,
+            lengthMenu: [5, 10, 25, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
