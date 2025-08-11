@@ -35,6 +35,7 @@ public class StockFilleService {
         for (Object[] temp : liste)
         {
             StockFille stockFille = new StockFille();
+            System.out.println("Entry : "+temp[1]);
             stockFille.setArticle((Article) temp[0]);
             stockFille.setTotal_entree((Double) temp[1]);
             stockFille.setTotal_sortie((Double) temp[2]);

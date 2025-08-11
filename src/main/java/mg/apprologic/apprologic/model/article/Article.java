@@ -1,4 +1,6 @@
 package mg.apprologic.apprologic.model.article;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -20,7 +22,8 @@ public class Article {
     private Double seuilMin;
 
     // Getters et Setters
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "id_udm", nullable = false)
     private Udm udm;
 
@@ -35,6 +38,7 @@ public class Article {
         Article.defaultDelayDemand = defaultDelayDemand;
     }
 
+    @JsonProperty("idArticle")
     public Integer getIdArticle() {
         return idArticle;
     }
@@ -51,6 +55,7 @@ public class Article {
         this.designation = designation;
     }
 
+    @JsonProperty("codeArticle")
     public String getCodeArticle() {
         return codeArticle;
     }
@@ -59,6 +64,8 @@ public class Article {
         this.codeArticle = codeArticle;
     }
 
+
+    @JsonProperty("udm")
     public Udm getUdm() {
         return udm;
     }
@@ -67,6 +74,7 @@ public class Article {
         this.udm = udm;
     }
 
+    @JsonProperty("seuilMin")
     public Double getSeuilMin() {
         return seuilMin;
     }

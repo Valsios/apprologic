@@ -50,8 +50,21 @@ public class StockMereService {
             anomalieStock.setStock_theorique(stockFilleService.stock_theorique_article_date(stockMere.getDateMouvement(),stockFille.getArticle()));
             anomalieStock.setStock_physique(stockFilleService.stock_article_date(stockMere.getDateMouvement(),stockFille.getArticle()));
             anomalieStock.setDescription(stockMere.getDescription());
-            anomalieStock.setDateInventaire(stockMere.getDateMouvement());
+            if (anomalieStock.getStock_theorique() - anomalieStock.getStock_physique()== 0.0)
+            {
+                String newDesc = "Stock retabli.";
 
+                if (stockFille.getEntree()>stockFille.getSortie())
+                {
+                    newDesc +="( par excedent de "+stockFille.getEntree()+" )";
+                }
+                else
+                {
+                    newDesc +="( par deficit de "+stockFille.getSortie()+" )";
+                }
+                anomalieStock.setDescription(newDesc);
+            }
+            anomalieStock.setDateInventaire(stockMere.getDateMouvement());
             anomalieStocks.add(anomalieStock);
         }
 

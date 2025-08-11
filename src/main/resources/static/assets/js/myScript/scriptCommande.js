@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    /***** INITIALISATION *****/
+    //Initialisation
     const addArticleBtn = document.getElementById('add-article');
     const articlesBody = document.getElementById('articles-body');
     const templateRow = document.querySelector('.template-row');
@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Écouteur d'événement pour le changement de sélection
     consommateurSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
-        //const hasChildren = selectedOption.getAttribute('data-has-children') === 'true';
 
         // Reset le select enfant
         enfantSelect.innerHTML = `<option value="${this.value}" selected>Sélectionnez un site/filiale (optionnel)</option>`;
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log(`/consommateur/enfants/${this.value}`);
         if (this.value) {
-            // Appel AJAX pour récupérer les enfants
             fetch(`/consommateur/enfants/${this.value}`)
                 .then(response => response.json(),)
                 .then(enfants => {
@@ -46,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    /***** FONCTION AUTCOMPLÉTION (inchangée) *****/
     function initAutocomplete(input) {
         const dropdown = document.createElement('div');
         dropdown.className = 'autocomplete-dropdown';
@@ -91,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    /***** GESTION DES LIGNES - VERSION CORRIGÉE *****/
+  //gestion des lignes
     function initExistingRows() {
         // Initialise l'autocomplétion pour les lignes existantes
         document.querySelectorAll('.article-row:not(.template-row) .article-ref').forEach(initAutocomplete);
@@ -129,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    /***** ÉVÉNEMENTS *****/
+    //event
     addArticleBtn.addEventListener('click', addNewRow);
     // Initialise les lignes existantes au chargement
     initExistingRows();

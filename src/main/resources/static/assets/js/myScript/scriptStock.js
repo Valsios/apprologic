@@ -1,10 +1,31 @@
 $(document).ready(function() {
-    // Recherche instantanée avec debounce
-    $('#searchInput').on('input', function() {
-        performSearch();
+    // Initialisation de DataTable
+    const dataTable = $('#article-table').DataTable({
+        pagingType: "simple_numbers",
+        responsive: true,
+        searching: false, // On désactive la recherche intégrée
+        ordering: true,
+        info: false,
+        lengthMenu: [5, 10, 25, 50],
+        language: {
+            paginate: {
+                previous: 'Précédent',
+                next: 'Suivant'
+            }
+        },
+        processing : true,
+        // Ajoutez cette option pour initialiser avec des données
+        initComplete: function() {
+            // Attache les handlers immédiatement
+            attachInventaireHandlers();
+        }
     });
-    $('#searchDate').on('input', function() {
-        performSearch();
+
+    // Recherche instantanée avec debounce
+    let searchTimeout;
+    $('#searchInput, #searchDate').on('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 300);
     });
 
     $('#searchType').change(performSearch);
@@ -12,63 +33,59 @@ $(document).ready(function() {
     function performSearch() {
         const searchTerm = $('#searchInput').val().trim();
         const searchDate = $('#searchDate').val();
-
         const csrfToken = $("meta[name='_csrf']").attr("content");
         const csrfHeader = $("meta[name='_csrf_header']").attr("content");
 
-        // Afficher un indicateur de chargement
-        $('#article-table tbody').html('<tr><td colspan="3" class="text-center"><div class="spinner-border text-primary" role="status"></div></td></tr>');
+        // Afficher le loading dans DataTable
+        dataTable.processing(true);
 
         $.ajax({
             type: "POST",
             url: "/article/stockSearch",
-            contentType: "application/x-www-form-urlencoded",
             data: {
                 searchTerm: searchTerm,
                 searchDate: searchDate
             },
-            success: function(data) {
-                renderTable(data);
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            },
+            success: function(response) {
+                const rows = response.map(item => [
+                    `<strong>${item.article.codeArticle || ''}</strong>-${item.article.designation || ''}`,
+                    `<span class="text-success fw-bold text-end">${item.total_entree}</span>`,
+                    `<span class="text-danger fw-bold text-end">${item.total_sortie}</span>`,
+                    `<span class="text-center">${item.stock_date}</span>`,
+                    `<span class="text-center">${item.last_date || ''}</span>`,
+
+                    `
+                <button class="btn btn-action text-center" title="Inventaire"
+                        data-action="inventaire"
+                        data-article-id="${item.article.idArticle}">
+                    <i class="bi bi-list-check"></i>
+                </button>
+                `
+                ]);
+
+                dataTable.clear().rows.add(rows).draw();
+                attachInventaireHandlers();
             },
             error: function(xhr) {
                 console.error("Erreur lors de la recherche:", xhr.responseText);
-                $('#article-table tbody').html('<tr><td colspan="3" class="text-center text-danger">Erreur lors de la recherche</td></tr>');
+                dataTable.clear().draw();
+                dataTable.row.add(['', 'Erreur lors de la recherche', '', '', '', '']).draw();
             },
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(csrfHeader, csrfToken); // Ajout du header CSRF
-            },
-
+            complete: function() {
+                dataTable.processing(false);
+            }
         });
     }
 
-    function renderTable(data) {
-        const tbody = $('#article-table tbody');
-        tbody.empty();
-
-        if (!data || data.length === 0) {
-            tbody.append('<tr><td colspan="3" class="text-center">Aucun résultat trouvé</td></tr>');
-            return;
-        }
-
-        data.forEach(stock_fille => {
-            tbody.append(`
-                <tr>
-                    <td><strong>${stock_fille.article.codeArticle || ''}</strong>-${stock_fille.article.designation || ''}</td>
-                    <td class="text-success fw-bold text-end">${stock_fille.total_entree }</td>
-                    <td class="text-danger fw-bold text-end">${stock_fille.total_sortie }</td>
-                    <td class="text-center">${stock_fille.stock_date}</td>
-                    <td class="text-center">${stock_fille.last_date || ''}</td>
-                    <td class="text-center">
-                    <button class="btn btn-action " title="Inventaire"
-                                data-action="inventaire"
-                                th:attr="data-article-id=${stock_fille.article.idArticle}"
-                        >
-                            <i class="bi bi-list-check"></i>
-                        </button>
-                    </td>
-                </tr>
-            `);
+    function attachInventaireHandlers() {
+        $('#article-table').off('click', '[data-action="inventaire"]').on('click', '[data-action="inventaire"]', function() {
+            const articleId = $(this).data('article-id');
+            const modal = new bootstrap.Modal('#inventaireModal');
+            $('#submitInventaire').data('article-id', articleId);
+            modal.show();
         });
     }
-
 });

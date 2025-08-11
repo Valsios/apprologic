@@ -43,12 +43,17 @@
                         <span th:text="${anomalie.article.designation}"></span>
 
                     </td>
-                    <td th:if="${anomalie.isColor_check()}"
+                    <td th:if="${anomalie.isColor_check() == 1}"
                         class="text-success text-center"
                         th:text="${anomalie.description}">Description</td>
-                    <td th:if="${!anomalie.isColor_check()}"
+                    <td th:if="${anomalie.isColor_check() == -1}"
                         class="text-danger text-center"
                         th:text="${anomalie.description}">Description</td>
+
+                    <td th:if="${anomalie.isColor_check() == 0}"
+                        class="text-primary text-center"
+                        th:text="${anomalie.description}">Description</td>
+
                     <td th:text="${anomalie.stock_theorique}">Stock théorique</td>
                     <td th:text="${anomalie.stock_physique}">Stock physique</td>
                     <td th:text="${#temporals.format(anomalie.dateInventaire,'dd/MM/yyyy HH:mm')}">Date inventaire</td>

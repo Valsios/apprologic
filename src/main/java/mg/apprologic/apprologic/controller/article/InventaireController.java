@@ -1,12 +1,13 @@
 package mg.apprologic.apprologic.controller.article;
 
 import mg.apprologic.apprologic.model.article.Article;
-import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
+import mg.apprologic.apprologic.model.bons.*;
 import mg.apprologic.apprologic.model.stock.AnomalieStock;
 import mg.apprologic.apprologic.model.stock.StockFille;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.model.stock.StockReel;
 import mg.apprologic.apprologic.services.article.ArticleService;
+import mg.apprologic.apprologic.services.local.GisementStockFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
 import mg.apprologic.apprologic.services.stock.StockMereService;
 import mg.apprologic.apprologic.services.stock.StockReelService;
@@ -41,6 +42,9 @@ public class InventaireController {
     @Autowired
     StockMereService stockMereService;
 
+    @Autowired
+    GisementStockFilleService gisementStockFilleService;
+
     @GetMapping("/anomalies")
     public String getListeAnomalie(Model model)
     {
@@ -49,7 +53,7 @@ public class InventaireController {
         return "article/AnomalieListe";
     }
     @PostMapping("/inventaire")
-    public ResponseEntity<Map<String, String>> uploadFile(
+    public ResponseEntity<Map<String, String>> inventaire(
             @RequestParam("quantite") String quantite,
             @RequestParam(value = "articleId", required = false) Integer articleId) {
 
@@ -99,8 +103,9 @@ public class InventaireController {
             {
                 stockMere.setDescription("Anomalie de stock : deficit.");
                 stockFille.setSortie(stock_article-stockReel.getStockReel());
+
             }
-            else
+            else if(stockReel.getStockReel()>stock_article)
             {
                 stockMere.setDescription("Anomalie de stock : excedentaire.");
                 stockFille.setEntree(stockReel.getStockReel()-stock_article);
@@ -109,6 +114,43 @@ public class InventaireController {
             stockFille.setUdm(stockFille.getArticle().getUdm());
             stockMereService.save(stockMere);
             stockFilleService.save(stockFille);
+            processGisement(stockFille);
+        }
+    }
+
+    public void processGisement(StockFille stockFille)
+    {
+        try {
+            if (stockFille.getEntree()>stockFille.getSortie())
+            {
+                System.out.println("FIRST IN ACTIVATE");
+                BonLivraisonMere bonLivraisonMere = new BonLivraisonMere();
+                bonLivraisonMere.setDateReception(LocalDateTime.now());
+                BonLivraisonFille bonLivraisonFille = new BonLivraisonFille();
+                bonLivraisonFille.setBonLivraisonMere(bonLivraisonMere);
+                bonLivraisonFille.setArticle(stockFille.getArticle());
+                bonLivraisonFille.setQuantite_recu(stockFille.getEntree());
+
+                gisementStockFilleService.firstInBonLivraison(bonLivraisonFille);
+
+            }
+            else if (stockFille.getSortie()>stockFille.getEntree())
+            {
+                System.out.println("FIRST OUT ACTIVATE");
+                BordereauMere bordereauMere = new BordereauMere();
+                bordereauMere.setDateBordereau(LocalDateTime.now());
+                DemandeFille demandeFille = new DemandeFille();
+                demandeFille.setArticle(stockFille.getArticle());
+                BordereauFille bordereauFille = new BordereauFille();
+                bordereauFille.setDemandeFille(demandeFille);
+                bordereauFille.setBordereauMere(bordereauMere);
+                bordereauFille.setQuantiteSortie(stockFille.getSortie());
+                gisementStockFilleService.firstOutBordereauFille(bordereauFille);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 }

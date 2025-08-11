@@ -1,4 +1,5 @@
 package mg.apprologic.apprologic.model.local;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,20 +15,21 @@ public class ExistantGisement {
     @JoinColumn(name = "id_local", nullable = false)
     private Local local;
 
-    @Column(name = "colonne", nullable = false)
-    private String colonne;
+    @Column(name = "trave", nullable = false)
+    private Integer trave;
 
-    @Column(name = "ligne", nullable = false)
-    private Integer ligne;
+    @Column(name = "alveole", nullable = false)
+    private String alveole;
 
-    @Column(name = "numero", nullable = false)
-    private Integer numero;
+    @Column(name = "etagere", nullable = false)
+    private Integer etagere;
 
-    @Column(name = "ligne_fille", nullable = false)
-    private Integer ligneFille;
+    @Column(name = "bac", nullable = false)
+    private Integer bac;
 
     // Getters et Setters
 
+    @JsonProperty("idGisement")
     public Integer getIdGisement() {
         return idGisement;
     }
@@ -44,36 +46,36 @@ public class ExistantGisement {
         this.local = local;
     }
 
-    public String getColonne() {
-        return colonne;
+    public Integer getTrave() {
+        return trave;
     }
 
-    public void setColonne(String colonne) {
-        this.colonne = colonne;
+    public void setTrave(Integer trave) {
+        this.trave = trave;
     }
 
-    public Integer getLigne() {
-        return ligne;
+    public String getAlveole() {
+        return alveole;
     }
 
-    public void setLigne(Integer ligne) {
-        this.ligne = ligne;
+    public void setAlveole(String alveole) {
+        this.alveole = alveole;
     }
 
-    public Integer getNumero() {
-        return numero;
+    public Integer getEtagere() {
+        return etagere;
     }
 
-    public void setNumero(Integer numero) {
-        this.numero = numero;
+    public void setEtagere(Integer etagere) {
+        this.etagere = etagere;
     }
 
-    public Integer getLigneFille() {
-        return ligneFille;
+    public Integer getBac() {
+        return bac;
     }
 
-    public void setLigneFille(Integer ligneFille) {
-        this.ligneFille = ligneFille;
+    public void setBac(Integer bac) {
+        this.bac = bac;
     }
 }
 

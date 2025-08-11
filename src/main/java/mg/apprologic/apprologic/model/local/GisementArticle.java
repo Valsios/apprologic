@@ -20,7 +20,7 @@ public class GisementArticle {
     private ExistantGisement gisement;
 
     @Column(name = "capacite_max_unitaire", nullable = false)
-    private Integer capaciteMaxUnitaire;
+    private Double capaciteMaxUnitaire;
 
     // Getters et Setters
 
@@ -48,11 +48,11 @@ public class GisementArticle {
         this.gisement = gisement;
     }
 
-    public Integer getCapaciteMaxUnitaire() {
+    public Double getCapaciteMaxUnitaire() {
         return capaciteMaxUnitaire;
     }
 
-    public void setCapaciteMaxUnitaire(Integer capaciteMaxUnitaire) {
+    public void setCapaciteMaxUnitaire(Double capaciteMaxUnitaire) {
         this.capaciteMaxUnitaire = capaciteMaxUnitaire;
     }
 }

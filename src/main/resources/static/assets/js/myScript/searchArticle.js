@@ -1,7 +1,47 @@
 $(document).ready(function() {
+    // Initialisation de DataTable
+    const dataTable = $('#article-table').DataTable({
+        pagingType: "simple_numbers",
+        responsive: true,
+        searching: false, // On désactive la recherche intégrée
+        ordering: true,
+        info: false,
+        lengthMenu: [5, 10, 25, 50],
+        language: {
+            paginate: {
+                previous: 'Précédent',
+                next: 'Suivant'
+            },
+        },
+        columns: [
+            { data: 'codeArticle' },
+            { data: 'designation' },
+            { data: 'seuilMin' },
+            {
+                data: 'udm',
+                render: function(data) {
+                    return data?.acronyme || '';
+                }
+            },
+            {
+                data: null,
+                orderable: false,
+                render: function(data, type, row) {
+                    return `<a href="/article/edit/${row.idArticle}" class="btn btn-action edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>`;
+                }
+            }
+        ],
+        processing: true,
+        serverSide: false
+    });
+
     // Recherche instantanée avec debounce
+    let searchTimeout;
     $('#searchInput').on('input', function() {
-        performSearch();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 300);
     });
 
     $('#searchType').change(performSearch);
@@ -9,58 +49,42 @@ $(document).ready(function() {
     function performSearch() {
         const searchTerm = $('#searchInput').val().trim();
         const searchType = $('#searchType').val();
-
         const csrfToken = $("meta[name='_csrf']").attr("content");
         const csrfHeader = $("meta[name='_csrf_header']").attr("content");
 
-        // Afficher un indicateur de chargement
-        $('#article-table tbody').html('<tr><td colspan="3" class="text-center"><div class="spinner-border text-primary" role="status"></div></td></tr>');
+        // Afficher le loading dans DataTable
+        dataTable.processing(true);
 
         $.ajax({
             type: "POST",
             url: "/article/search",
-            contentType: "application/x-www-form-urlencoded",
             data: {
                 query: searchTerm,
                 searchType: searchType
             },
-            success: function(data) {
-                renderTable(data);
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeader, csrfToken);
+            },
+            success: function(response) {
+                // Formatage des données pour DataTables
+                const formattedData = response.map(article => ({
+                    codeArticle: article.codeArticle || '',
+                    designation: article.designation || '',
+                    seuilMin: article.seuilMin || '',
+                    udm: article.udm || {},
+                    idArticle: article.idArticle
+                }));
+
+                dataTable.clear().rows.add(formattedData).draw();
             },
             error: function(xhr) {
                 console.error("Erreur lors de la recherche:", xhr.responseText);
-                $('#article-table tbody').html('<tr><td colspan="3" class="text-center text-danger">Erreur lors de la recherche</td></tr>');
+                dataTable.clear().draw();
+                dataTable.row.add(['', 'Erreur lors de la recherche', '', '', '']).draw();
             },
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader(csrfHeader, csrfToken); // Ajout du header CSRF
-            },
-
+            complete: function() {
+                dataTable.processing(false);
+            }
         });
     }
-
-    function renderTable(data) {
-        const tbody = $('#article-table tbody');
-        tbody.empty();
-
-        if (!data || data.length === 0) {
-            tbody.append('<tr><td colspan="3" class="text-center">Aucun résultat trouvé</td></tr>');
-            return;
-        }
-
-        data.forEach(article => {
-            tbody.append(`
-                <tr>
-                    <td>${article.codeArticle || ''}</td>
-                    <td>${article.designation || ''}</td>
-                    <td>${article.udm.acronyme || ''}</td>
-                    <td>
-                        <a href="/article/edit/${article.idArticle}" class="btn btn-action edit">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                    </td>
-                </tr>
-            `);
-        });
-    }
-
 });

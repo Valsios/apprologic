@@ -34,5 +34,7 @@ public class StockController {
         searchTerm = StringUtils.hasText(searchTerm) ? searchTerm : null;
 
         return stockFilleService.stock_date(searchDate, searchTerm);
-    };
+    }
+
+
 }

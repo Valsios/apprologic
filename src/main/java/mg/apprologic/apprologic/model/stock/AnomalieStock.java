@@ -15,8 +15,19 @@ public class AnomalieStock {
 
 
 
-    public boolean isColor_check() {
-        return this.getStock_physique()>this.getStock_theorique();
+    public int isColor_check() {
+        if (this.getStock_physique()>this.getStock_theorique())
+        {
+            this.setDescription("Anomalie stock : excedentaire.");
+            return 1;
+        } else if (this.getStock_theorique()>this.getStock_physique()) {
+
+            this.setDescription("Anomalie stock : deficit.");
+            return -1;
+        }
+        else {
+            return 0;
+        }
     }
 
 

@@ -11,8 +11,6 @@
     <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
     <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
     <link rel="stylesheet" th:href="@{/assets/css/form.css}">
-
-
 </head>
 <body>
 <div th:replace="~{include/navbar :: navbar}"></div>
@@ -73,24 +71,5 @@
 
 <div th:replace="~{include/footer :: footer}"></div>
 <script src="/assets/js/myScript/searchArticle.js"></script>
-<script>
-    // Initialisation DataTable
-    $(document).ready(function() {
-        $('#article-table').DataTable({
-            pagingType: "simple_numbers",
-            responsive: true,
-            searching: false,
-            ordering: true,
-            info: false,
-            lengthMenu: [5, 10, 25, 50],
-            language: {
-                paginate: {
-                    previous: 'Précédent',
-                    next: 'Suivant'
-                }
-            }
-        });
-    });
-</script>
 </body>
 </html>

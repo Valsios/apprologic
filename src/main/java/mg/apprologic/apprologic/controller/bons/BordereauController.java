@@ -4,10 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import mg.apprologic.apprologic.exception.ExceptionDate;
 import mg.apprologic.apprologic.exception.ExceptionValueNumber;
 import mg.apprologic.apprologic.model.article.Article;
-import mg.apprologic.apprologic.model.bons.DemandeFille;
-import mg.apprologic.apprologic.model.bons.DemandeMere;
-import mg.apprologic.apprologic.model.bons.BordereauFille;
-import mg.apprologic.apprologic.model.bons.BordereauMere;
+import mg.apprologic.apprologic.model.bons.*;
 import mg.apprologic.apprologic.model.stock.StockFille;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.services.article.ArticleService;
@@ -17,10 +14,13 @@ import mg.apprologic.apprologic.services.bons.BonCommandeMereService;
 import mg.apprologic.apprologic.services.bons.BordereauFilleService;
 import mg.apprologic.apprologic.services.bons.BordereauMereService;
 import mg.apprologic.apprologic.services.consommateur.TransportService;
+import mg.apprologic.apprologic.services.local.GisementStockFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
 import mg.apprologic.apprologic.services.stock.StockMereService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -58,6 +58,9 @@ public class BordereauController {
     StockMereService stockMereService;
 
 
+    @Autowired
+    GisementStockFilleService gisementStockFilleService;
+
 
 
     @GetMapping("/liste")
@@ -67,6 +70,7 @@ public class BordereauController {
         return "bons/BordereauListe";
     }
     @PostMapping("/save")
+    @Transactional
     public String save(@ModelAttribute("bordereau") BordereauMere bordereauMere, HttpServletRequest request, RedirectAttributes redirectAttributes)
     {
         StockMere stockMere = null;
@@ -88,6 +92,7 @@ public class BordereauController {
             bonCommandeMereService.save(bordereauMere.getDemandeMere());
 
 
+
             //insertion stock
             stockMere = new StockMere();
             stockMere.setDemandeMere(bordereauMere.getDemandeMere());
@@ -97,6 +102,8 @@ public class BordereauController {
             stockMereService.save(stockMere);
             saveStockFille(bordereauFilleList,stockMere,stockFilleList);
 
+            //process gisement
+            processGisement(bordereauFilleList);
 
 
             System.out.println("SAVED");
@@ -144,7 +151,8 @@ public class BordereauController {
             stockFilleService.save(stockFille);
         }
     }
-    protected void saveBordereauFille(HttpServletRequest request , BordereauMere bordereauMere,List<BordereauFille> bordereauFilleList,RedirectAttributes redirectAttributes)throws ExceptionValueNumber
+
+    protected void saveBordereauFille(HttpServletRequest request , BordereauMere bordereauMere,List<BordereauFille> bordereauFilleList,RedirectAttributes redirectAttributes)throws Exception
     {
         String warning = "";
         List<DemandeFille> demandeFilleList = bonCommandeFilleService.getByMere(bordereauMere.getDemandeMere());
@@ -154,7 +162,7 @@ public class BordereauController {
 
             BordereauFille bordereauFille = new BordereauFille();
             bordereauFille.setDemandeFille(demandeFille);
-            bordereauFille.setBordereauMere(bordereauMere);
+            bordereauFille.setBordereauMere(bordereauMereService.getById(bordereauMere.getIdBordereauMere()));
 
             bordereauFille.setPrixUnitaire(request.getParameter(suffix+"prixUnitaire"));
             bordereauFille.setQuantiteSortie(request.getParameter(suffix+"quantiteLivree"));
@@ -177,7 +185,16 @@ public class BordereauController {
             }
             bordereauFilleService.save(bordereauFille);
 
+
             bordereauFilleList.add(bordereauFille);
+        }
+    }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processGisement(List<BordereauFille> bordereauFilleList)throws Exception
+    {
+        for (BordereauFille bordereauFille : bordereauFilleList)
+        {
+            gisementStockFilleService.firstOutBordereauFille(bordereauFille);
         }
     }
     @PostMapping("/create")

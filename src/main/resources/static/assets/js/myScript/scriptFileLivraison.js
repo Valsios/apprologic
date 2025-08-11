@@ -1,11 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Ouvre la modale quand on clique sur "Ajouter pièce jointe"
     document.querySelectorAll('[data-action="upload"]').forEach(button => {
         button.addEventListener('click', function() {
             const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
             modal.show();
-
-            // Stocke l'ID de la livraison associée (si nécessaire)
             const livraisonId = this.getAttribute('data-livraison-id');
             document.getElementById('submitUpload').setAttribute('data-livraison-id', livraisonId);
         });
@@ -33,7 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
-            window.location.reload();
+            showToast('Fichié attaché.','success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
 
         } catch (error) {
             console.error('Erreur détaillée:', error);
@@ -52,11 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Fonction pour afficher la pièce jointe
 function afficherPieceJointe(livraisonId) {
-    // Crée une modale dynamique
     const modalId = 'fileViewerModal';
     let modalElement = document.getElementById(modalId);
-
-    // Si la modale existe déjà, on la supprime pour la recréer
     if (modalElement) {
         modalElement.remove();
     }
@@ -82,16 +79,36 @@ function afficherPieceJointe(livraisonId) {
                 </div>
             </div>
         </div>`;
-
-    // Ajout au DOM
     document.body.appendChild(modalElement);
-
-    // Initialisation et affichage de la modale
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
-
-    // Nettoyage quand la modale est fermée
     modalElement.addEventListener('hidden.bs.modal', () => {
         modalElement.remove();
     });
+}
+
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type}`;
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 5000);
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1100';
+    document.body.appendChild(container);
+    return container;
 }

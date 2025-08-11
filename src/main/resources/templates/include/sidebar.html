@@ -3,13 +3,13 @@
 <body>
 <div th:fragment="sidebar">
 <div class="sidebar d-flex flex-column" style="height: 100%">
-<nav class="nav flex-column">
+<nav class="nav flex-column" id="sidebar-nav">
     <a class="nav-link" href="/getTest">
         <i class="bi bi-speedometer2 me-2"></i>Dashboard
     </a>
 
 
-    <!-- Nouvelle section Bon de Livraison -->
+    <!--section Bon de Livraison -->
 
     <li class="nav-item">
         <a class="nav-link collapsed" data-bs-toggle="collapse" href="#livraison-collapse" aria-expanded="false">
@@ -36,7 +36,7 @@
     </li>
 
 
-    <!-- Nouvelle section Bon de Commande -->
+    <!-- section Bon de Commande -->
     <li class="nav-item">
         <a class="nav-link collapsed" data-bs-toggle="collapse" href="#commandes-collapse" aria-expanded="false">
             <i class="bi bi-cart3 me-2"></i>
@@ -129,23 +129,11 @@
             </ul>
         </div>
     </li>
+    <a class="nav-link" href="/local/occupations">
+        <i class="bi bi-layers me-2"></i>Occupation des locaux
+    </a>
     <a class="nav-link" href="/message/all">
         <i class="bi bi-mailbox me-2"></i>Messages
-    </a>
-
-    <a class="nav-link" href="/getForms">
-        <i class="bi bi-basket me-2"></i>Forms
-    </a>
-    <a class="nav-link" href="#">
-        <i class="bi bi-truck me-2"></i>Approvisionnement
-    </a>
-    <a class="nav-link" href="/api/documents/download-bordereau">
-        <i class="bi bi-envelope me-2"></i>Generate PDF
-    </a>
-
-
-    <a class="nav-link" href="/testFile/form">
-        <i class="bi bi-mailbox me-2"></i>TestFile
     </a>
     <li class="nav-item">
         <a class="nav-link collapsed" data-bs-toggle="collapse" href="#operation-collapse" aria-expanded="false">
@@ -179,4 +167,18 @@
 </div>
 </div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarNav = document.getElementById('sidebar-nav');
+
+        sidebarNav.addEventListener('show.bs.collapse', function(event) {
+            const allCollapses = sidebarNav.querySelectorAll('.collapse.show');
+            allCollapses.forEach(function(collapse) {
+                if (collapse !== event.target) {
+                    bootstrap.Collapse.getInstance(collapse).hide();
+                }
+            });
+        });
+    });
+</script>
 </html>

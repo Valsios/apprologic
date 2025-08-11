@@ -10,6 +10,7 @@ import mg.apprologic.apprologic.services.article.DeviseService;
 import mg.apprologic.apprologic.services.bons.BonLivraisonFilleService;
 import mg.apprologic.apprologic.services.bons.BonLivraisonMereService;
 import mg.apprologic.apprologic.services.fournisseur.FournisseurService;
+import mg.apprologic.apprologic.services.local.GisementStockFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
 import mg.apprologic.apprologic.services.stock.StockMereService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +65,10 @@ public class BonLivraisonController {
 
     @Autowired
     StockFilleService stockFilleService;
+
+    @Autowired
+    GisementStockFilleService gisementStockFilleService;
+
 
     @GetMapping("/liste")
     public String getListeBl(Model model)
@@ -119,6 +126,7 @@ public class BonLivraisonController {
         }
     }
     @PostMapping("/save")
+    @Transactional
     public String saveBl(
                          @ModelAttribute("bonLivrason") BonLivraisonMere bonLivraisonMere
                         ,HttpServletRequest request, RedirectAttributes redirectAttributes)
@@ -131,6 +139,8 @@ public class BonLivraisonController {
             bonLivraisonMereService.save(bonLivraisonMere);
             processLignesLivraison(request,bonLivraisonMere,bonLivraisonFilleList);
 
+            //process gisement
+            processGisement(bonLivraisonFilleList);
 
             //process stock
             StockMere stockMere = new StockMere();
@@ -145,11 +155,13 @@ public class BonLivraisonController {
         }
         catch (Exception e)
         {
-            for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
-            {
-                bonLivraisonFilleService.delete(bonLivraisonFille);
-            }
-            bonLivraisonMereService.delete(bonLivraisonMere);
+
+                for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
+                {
+                    bonLivraisonFilleService.delete(bonLivraisonFille);
+                }
+                bonLivraisonMereService.delete(bonLivraisonMere);
+
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error",e.getMessage());
             return "redirect:/bonLivraison/formulaire";
@@ -157,8 +169,7 @@ public class BonLivraisonController {
         return "redirect:/bonLivraison/liste";
 
     }
-
-    private void processLignesLivraison(HttpServletRequest request, BonLivraisonMere bonLivraisonMere, List<BonLivraisonFille> livraisonFilleList) throws Exception {
+    public void processLignesLivraison(HttpServletRequest request, BonLivraisonMere bonLivraisonMere, List<BonLivraisonFille> livraisonFilleList) throws Exception {
         int i = 0;
         while (request.getParameter("lignes"+i+".idArticle") != null)
         {
@@ -166,21 +177,32 @@ public class BonLivraisonController {
             Integer idArticle = Integer.valueOf(request.getParameter(suffixe+"idArticle"));
 
             BonLivraisonFille bonLivraisonFille = new BonLivraisonFille();
-            bonLivraisonFille.setBonLivraisonMere(bonLivraisonMere);
+            bonLivraisonFille.setBonLivraisonMere(bonLivraisonMereService.getById(bonLivraisonMere.getIdBlMere()));
             bonLivraisonFille.setArticle(articleService.getById(idArticle));
             bonLivraisonFille.setPrixUnitaire(request.getParameter(suffixe+"PU"));
             bonLivraisonFille.setQuantite_demande(request.getParameter(suffixe+"quantiteDemande"));
             bonLivraisonFille.setQuantite_recu(request.getParameter(suffixe+"quantiteReçu"));
 
-
-
             bonLivraisonFilleService.save(bonLivraisonFille);
+
+
 
             livraisonFilleList.add(bonLivraisonFille);
 
             i++;
         }
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processGisement(List<BonLivraisonFille> bonLivraisonFilleList)throws Exception
+    {
+        for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
+        {
+            gisementStockFilleService.firstInBonLivraison(bonLivraisonFille);
+        }
+    }
+
+
     public void processStock(StockMere stockMere,List<BonLivraisonFille> bonLivraisonFilleListe)
     {
         for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleListe)

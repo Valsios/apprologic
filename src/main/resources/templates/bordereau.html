@@ -183,7 +183,7 @@
 
 <div class="section-infos">
   <div><strong>Date bordereau :</strong>  <span th:text="${#temporals.format(mere.dateBordereau, 'dd/MM/yyyy')}"></span></div>
-  <div><strong>Références :</strong> <span th:text="${mere.description}"></span></div>
+  <div><strong>Références :</strong> <span th:text="${mere.description}"></span> svt PGI <span th:text="${mere.demandeMere.codePgi}"></span></div>
   <div><strong>Origine :</strong> IVATO</div>
 </div>
 
@@ -197,7 +197,7 @@
   </tr>
   </thead>
   <tbody>
-  <tr th:each="fille : ${filles}">
+  <tr th:each="fille : ${filles}" th:if="${fille.quantiteSortie > 0}">
     <td>
       <span th:text="${fille.demandeFille.article.codeArticle}"></span> -
       <span th:text="${fille.demandeFille.article.designation}"></span>

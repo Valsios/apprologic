@@ -1,8 +1,10 @@
 package mg.apprologic.apprologic.model.local;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "local")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Local {
 
     @Id
