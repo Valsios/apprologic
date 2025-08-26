@@ -8,13 +8,12 @@ import mg.apprologic.apprologic.model.bons.DemandeMere;
 import mg.apprologic.apprologic.model.consommateur.Adresse;
 import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.services.article.ArticleService;
-import mg.apprologic.apprologic.services.bons.BonCommandeFilleService;
-import mg.apprologic.apprologic.services.bons.BonCommandeMereService;
+import mg.apprologic.apprologic.services.bons.DemandeFilleService;
+import mg.apprologic.apprologic.services.bons.DemandeMereService;
 import mg.apprologic.apprologic.services.consommateur.AdresseService;
 import mg.apprologic.apprologic.services.consommateur.ConsommateurService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,19 +40,41 @@ public class DemandeController {
     ArticleService articleService;
 
     @Autowired
-    BonCommandeMereService bonCommandeMereService;
+    DemandeMereService demandeMereService;
 
     @Autowired
-    BonCommandeFilleService bonCommandeFilleService;
+    DemandeFilleService demandeFilleService;
 
     @Autowired
     StockFilleService stockFilleService;
 
 
+
+
+    @PostMapping("/filtrer")
+    public String filtrer(Model model,@RequestParam("consommateur") String idConsommateur,@RequestParam("consommateurEnfant") String idConsommateurFille)
+    {
+        List<DemandeMere> toReturn = demandeMereService.getAllNotSortie();
+        if (!idConsommateur.isEmpty())
+        {
+            Integer idToFind = Integer.valueOf(idConsommateur);
+            if (idConsommateurFille != null && !idConsommateurFille.isEmpty())
+            {
+                idToFind = Integer.valueOf(idConsommateurFille);
+            }
+            toReturn = demandeMereService.getByConsommateur(consommateurService.getById(idToFind));
+        }
+
+        model.addAttribute("commande_liste",toReturn);
+        model.addAttribute("consommateur_liste",consommateurService.getAllMere());
+        return "bons/DemandeListe";
+
+    }
     @GetMapping("/liste")
     public String getListeBonCommande(Model model)
     {
-        model.addAttribute("commande_liste",bonCommandeMereService.getAllNotSortie());
+        model.addAttribute("commande_liste", demandeMereService.getAllNotSortie());
+        model.addAttribute("consommateur_liste",consommateurService.getAllMere());
         return "bons/DemandeListe";
     }
     @GetMapping("/formulaire")
@@ -100,7 +120,7 @@ public class DemandeController {
             commandeMere.setAdresse(adresse);
             commandeMere.setCodePgi(codePgi);
 
-            DemandeMere savedMere = bonCommandeMereService.save(commandeMere);
+            DemandeMere savedMere = demandeMereService.save(commandeMere);
 
 
             // 3. Traitement des lignes de commande
@@ -112,11 +132,11 @@ public class DemandeController {
         {
             for (DemandeFille demandeFille : demandeFilleList)
             {
-                bonCommandeFilleService.delete(demandeFille);
+                demandeFilleService.delete(demandeFille);
             }
             if (commandeMere != null)
             {
-                bonCommandeMereService.delete(commandeMere);
+                demandeMereService.delete(commandeMere);
             }
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/demande/formulaire";
@@ -153,7 +173,7 @@ public class DemandeController {
             }
 
 
-            bonCommandeFilleService.save(demandeFille);
+            demandeFilleService.save(demandeFille);
 
             commandeFilleList.add(demandeFille);
 

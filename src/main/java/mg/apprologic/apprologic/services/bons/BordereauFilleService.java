@@ -3,6 +3,7 @@ package mg.apprologic.apprologic.services.bons;
 import mg.apprologic.apprologic.model.article.Article;
 import mg.apprologic.apprologic.model.bons.BordereauFille;
 import mg.apprologic.apprologic.model.bons.BordereauMere;
+import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.repository.bons.BordereauFilleRepository;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -31,6 +33,54 @@ public class BordereauFilleService {
         bordereauFilleRepository.delete(bordereauFille);
     }
 
+
+    //filtre article and year
+
+    public HashMap<String,Double> tauxSatisfactionDemande(List<BordereauFille> bordereauFilleList)
+    {
+
+        HashMap<String, Double> toReturn = new HashMap<>() ;
+        Double lack = 0.0;
+
+        Double quantiteDemande = 0.0;
+        Double quantiteSortie = 0.0;
+        for (BordereauFille bordereauFille : bordereauFilleList)
+        {
+            quantiteDemande += bordereauFille.getDemandeFille().getQuantite();
+            quantiteSortie += bordereauFille.getQuantiteSortie();
+            lack += (bordereauFille.getQuantiteSortie()/bordereauFille.getDemandeFille().getQuantite())*100;
+        }
+        lack = lack / bordereauFilleList.size();
+
+        toReturn.put("tauxSatisfactionDemande",lack);
+        toReturn.put("quantiteDemande",quantiteDemande);
+        toReturn.put("quantiteSortie",quantiteSortie);
+        return toReturn;
+
+    }
+
+    public HashMap<Consommateur,Double> departementPlusConsommateur(List<BordereauFille> bordereauFilleList)
+    {
+        HashMap<Consommateur,Double> toReturn = new HashMap<>();
+        for (BordereauFille bordereauFille : bordereauFilleList)
+        {
+            Consommateur consommateur = (bordereauFille.getBordereauMere().getDemandeMere().getConsommateur());
+            if (toReturn.containsKey(consommateur))
+            {
+                toReturn.put(consommateur,toReturn.get(consommateur)+bordereauFille.getQuantiteSortie());
+            }
+            else {
+                toReturn.put(consommateur,bordereauFille.getQuantiteSortie());
+            }
+        }
+        return toReturn;
+    }
+
+    //END OF DASHBOARD
+    public List<BordereauFille> getBordereauFilleByArticleAndYear(Article article,Integer year)
+    {
+        return bordereauFilleRepository.getBordereauFilleByArticleAndYear(article,year);
+    }
     public List<BordereauFille> getAllByMere(BordereauMere bordereauMere)
     {
         return bordereauFilleRepository.getBordereauFilleByBordereauMere(bordereauMere);

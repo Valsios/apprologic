@@ -42,7 +42,21 @@ public class GisementStockFille {
     @Transient
     @JsonProperty("capaciteMaxUnnitaire")
     private Double capaciteMaxUnnitaire;
-    // Getters et Setters
+
+    @Transient
+    boolean canBeAssigned;
+    // Getters et Setters$
+
+
+
+    @JsonProperty("isCanBeAssigned")
+    public boolean isCanBeAssigned() {
+        return canBeAssigned;
+    }
+
+    public void setCanBeAssigned(boolean canBeAssigned) {
+        this.canBeAssigned = canBeAssigned;
+    }
 
     public Double tauxLibre()
     {

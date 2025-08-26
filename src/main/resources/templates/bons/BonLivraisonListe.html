@@ -51,7 +51,12 @@
 
     <div class="main-content">
         <div class="table-responsive shadow rounded bg-light p-3">
-            <h3 class="text-black-50 mb-3">Liste des livraisons</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-black-50 mb-3">Liste des livraisons</h3>
+                <a th:href="@{/bonLivraison/formulaire}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Nouvelle Livraison
+                </a>
+            </div>
             <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
                 <span th:text="${success}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

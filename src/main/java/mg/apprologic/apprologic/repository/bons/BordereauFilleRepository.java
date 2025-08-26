@@ -17,6 +17,12 @@ public interface BordereauFilleRepository extends JpaRepository<BordereauFille,I
 
     @Query("SELECT b FROM BordereauFille b WHERE b.demandeFille.article = :article AND b.bordereauMere.dateBordereau between :minus3 AND :present")
     List<BordereauFille> getByArticleAndDateBetween(Article article, LocalDateTime  minus3,LocalDateTime present);
+
+
+    //pour le taux de satisfaction des demandes et departement plus en unité consommateur
+    @Query("SELECT b FROM BordereauFille b WHERE YEAR(b.bordereauMere.dateBordereau) = :year AND b.demandeFille.article = :article")
+    public List<BordereauFille> getBordereauFilleByArticleAndYear(Article article,Integer year);
+
     public List<BordereauFille> getBordereauFilleByBordereauMere(BordereauMere bordereauMere);
 
 }

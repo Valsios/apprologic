@@ -13,26 +13,6 @@ $(document).ready(function() {
                 next: 'Suivant'
             },
         },
-        columns: [
-            { data: 'codeArticle' },
-            { data: 'designation' },
-            { data: 'seuilMin' },
-            {
-                data: 'udm',
-                render: function(data) {
-                    return data?.acronyme || '';
-                }
-            },
-            {
-                data: null,
-                orderable: false,
-                render: function(data, type, row) {
-                    return `<a href="/article/edit/${row.idArticle}" class="btn btn-action edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>`;
-                }
-            }
-        ],
         processing: true,
         serverSide: false
     });
@@ -67,15 +47,24 @@ $(document).ready(function() {
             },
             success: function(response) {
                 // Formatage des données pour DataTables
-                const formattedData = response.map(article => ({
-                    codeArticle: article.codeArticle || '',
-                    designation: article.designation || '',
-                    seuilMin: article.seuilMin || '',
-                    udm: article.udm || {},
-                    idArticle: article.idArticle
-                }));
+                const rows = response.map(item => [
+                    `<span class="text-end">${item.codeArticle || ''}</span>`,
+                    `<span class="text-start">${item.designation || ''}</span>`,
+                    `<span class="text-end">${item.seuilMin || ''}</span>`,
+                    `<span class="text-end">${item.famille.description || ''}</span>`,
+                    `<span class="text-start">${item.udm.acronyme || ''}</span>`,
 
-                dataTable.clear().rows.add(formattedData).draw();
+                    `
+               <div class="btn-group" role="group">
+                            <a class="btn btn-action edit" title="Modifier"
+                               th:href="@{'/article/edit/' + ${item.idArticle}}">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                `
+                ]);
+
+                dataTable.clear().rows.add(rows).draw();
             },
             error: function(xhr) {
                 console.error("Erreur lors de la recherche:", xhr.responseText);

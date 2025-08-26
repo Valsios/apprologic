@@ -129,9 +129,32 @@
             </ul>
         </div>
     </li>
-    <a class="nav-link" href="/local/occupations">
-        <i class="bi bi-layers me-2"></i>Occupation des locaux
-    </a>
+
+    <!-- section Local -->
+
+    <li>
+        <a class="nav-link collapsed" data-bs-toggle="collapse" href="#local-collapse" aria-expanded="false">
+            <i class="bi bi-layers me-2"></i>
+            <span>Local</span>
+            <i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <div id="local-collapse" class="collapse" data-bs-parent="#sidebar-nav">
+            <ul class="nav flex-column ps-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/local/occupations">
+                        <i class="bi bi-list-check me-2"></i>Occupation
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/local/nouveauGisement">
+                        <i class="bi bi-plus-circle me-2"></i>Nouveau Gisement
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </li>
+
+
     <a class="nav-link" href="/message/all">
         <i class="bi bi-mailbox me-2"></i>Messages
     </a>

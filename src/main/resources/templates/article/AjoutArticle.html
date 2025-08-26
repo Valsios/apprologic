@@ -61,6 +61,17 @@
                                         ></option>
                             </select>
                         </div>
+
+                        <label for="famille" class="form-label">Famille</label>
+                        <div class="mb-3">
+                            <select class="form-select" id="famille" th:field="*{famille.idFamille}" required>
+                                <option value="">Sélectionner une famille</option>
+                                <option th:each="famille : ${familleList}"
+                                        th:value="${famille.idFamille}"
+                                        th:text="${famille.description}"
+                                ></option>
+                            </select>
+                        </div>
                         <div class="d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-primary">Soumettre</button>
                         </div>

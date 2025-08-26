@@ -1,5 +1,6 @@
 package mg.apprologic.apprologic.model.consommateur;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -23,6 +24,8 @@ public class Adresse {
     }
 
     // Getters and Setters
+
+    @JsonProperty("idAdresse")
     public Integer getIdAdresse() {
         return idAdresse;
     }

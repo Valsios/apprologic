@@ -22,7 +22,12 @@
 
     <div class="main-content">
         <div class="table-responsive shadow rounded bg-light p-3">
-            <h3 class="text-black-50 mb-3">Liste des Articles</h3>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-black-50 mb-3">Liste des Articles</h3>
+                <a th:href="@{/article/ajout}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Nouvel Article
+                </a>
+            </div>
             <div class="search-container" style="width: 300px;">
                 <div class="input-group">
                     <meta name="_csrf" th:content="${_csrf.token}"/>
@@ -41,6 +46,7 @@
                     <th>Code PGI</th>
                     <th>Désignation</th>
                     <th>Seuil minimum</th>
+                    <th>Famille</th>
                     <th>UDM</th>
                     <th>Action</th>
                 </tr>
@@ -50,6 +56,7 @@
                     <td th:text="${article.codeArticle}">CODE123</td>
                     <td th:text="${article.designation}">Nom de l'article</td>
                     <td th:text="${article.seuilMin}">Seuil</td>
+                    <td th:text="${article.famille.description}">Famille</td>
                     <td th:text="${article.udm.acronyme}">Unité de mésure</td>
                     <td>
                         <div class="btn-group" role="group">

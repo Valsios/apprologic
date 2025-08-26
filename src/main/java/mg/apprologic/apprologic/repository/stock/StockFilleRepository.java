@@ -15,6 +15,9 @@ import java.util.List;
 @Repository
 public interface StockFilleRepository extends JpaRepository<StockFille,Integer> {
 
+    @Query("SELECT s FROM StockFille s WHERE year (s.stockMere.dateMouvement) = :year AND s.article = :article")
+    List<StockFille> getStockFilleByArticleAndYear(Article article ,Integer year);
+
     @Query("SELECT s.article, " +
             "SUM(CASE WHEN sm.dateMouvement <= COALESCE(:date, CURRENT_TIMESTAMP) THEN s.entree ELSE 0.0 END) AS total_entree, " +
             "SUM(CASE WHEN sm.dateMouvement <= COALESCE(:date, CURRENT_TIMESTAMP) THEN s.sortie ELSE 0.0 END) AS total_sortie, " +
@@ -41,6 +44,7 @@ public interface StockFilleRepository extends JpaRepository<StockFille,Integer> 
             "MAX(sm.dateMouvement) as last_date " +
             "FROM StockFille s JOIN s.stockMere sm WHERE s.article = :article AND (sm.bonLivraisonMere IS NOT NULL OR sm.demandeMere IS NOT NULL )GROUP BY s.article ")
     List<Object[]> findStockFilleByArticleTheorique(LocalDateTime date, Article article);
+
 
     List<StockFille> getStockFilleByStockMere(StockMere stockMere);
 }

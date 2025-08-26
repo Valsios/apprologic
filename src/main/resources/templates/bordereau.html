@@ -217,8 +217,8 @@
   <div class="footer-left">
     <p>Observation </p>
     <p>Transport :<span th:text="${mere.transport.type}"></span></p>
-    <p>Poids : <span th:text="${#numbers.formatDecimal(mere.poids, 1, 2)}"></span></p>
-    <p>Colisage :<span th:text="${mere.colisage}"></span></p>
+    <p>Poids : <span th:text="${mere.poids != null} ? ${#numbers.formatDecimal(mere.poids, 1, 2)}"></span></p>
+    <p>Colisage : <span th:text="${mere.colisage} ?: ''"></span></p>
     <p>Reçu le :</p>
     <p>à : </p>
   </div>

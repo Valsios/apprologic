@@ -27,8 +27,19 @@ public class Article {
     @JoinColumn(name = "id_udm", nullable = false)
     private Udm udm;
 
+    @ManyToOne(optional = false,fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JoinColumn(name = "id_famille", nullable = false)
+    private Famille famille;
+
     @Transient
     static Integer defaultDelayDemand = 5;
+
+    @Transient
+    private Double prixPondere;
+
+
+
 
     public static Integer getDefaultDelayDemand() {
         return defaultDelayDemand;
@@ -36,6 +47,26 @@ public class Article {
 
     public static void setDefaultDelayDemand(Integer defaultDelayDemand) {
         Article.defaultDelayDemand = defaultDelayDemand;
+    }
+
+
+
+    @JsonProperty("famille")
+    public Famille getFamille() {
+        return famille;
+    }
+
+    public void setFamille(Famille famille) {
+        this.famille = famille;
+    }
+
+    @JsonProperty("prixPondere")
+    public Double getPrixPondere() {
+        return prixPondere;
+    }
+
+    public void setPrixPondere(Double prixPondere) {
+        this.prixPondere = prixPondere;
     }
 
     @JsonProperty("idArticle")

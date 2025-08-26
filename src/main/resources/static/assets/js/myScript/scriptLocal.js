@@ -96,15 +96,17 @@ function renderTable(data) {
     const rows = data.map(item => {
         const tauxOccupation = ((item.quantite_in - item.quantite_out) / item.capaciteMaxUnnitaire * 100);
         const tauxLibre = 100 - tauxOccupation;
-
+        console.log("ABS : "+item.gisement.idGisement+" " +(Math.abs(tauxLibre-100)<0.01));
         return [
             item.gisement.local.designation,
             formatTwoDigits(item.gisement.trave),
             item.gisement.alveole,
             formatTwoDigits(item.gisement.etagere),
             formatTwoDigits(item.gisement.bac),
-            `<strong>${item.article.codeArticle}</strong>-${item.article.designation}`,
-            item.capaciteMaxUnnitaire,
+            // Colonne article.designation-codeArticle avec condition
+            item.article ? `<strong>${item.article.codeArticle}</strong>-${item.article.designation}` : '<span class="text-muted">Pas assigné</span>',
+            // Colonne capacité maximum avec condition
+            item.article ? item.capaciteMaxUnnitaire : '<span class="text-muted">N/A</span>',
             `<div class="d-flex align-items-center">
                 <div class="progress me-2" style="height: 10px; width: 80px;">
                     <div class="progress-bar ${getProgressBarClass(tauxLibre)}"
@@ -114,14 +116,16 @@ function renderTable(data) {
                 <span>${tauxLibre.toFixed(1)}%</span>
             </div>`,
             `
-            <button th:if="${Math.abs(tauxLibre - 100) <0.01 }"
-                                class="btn btn-action assign"
-                                title="Assigner à un nouvel article"
-                                data-bs-toggle="modal"
-                                data-bs-target="#assignModal"
-                                th:data-gisement-id="${item.gisement.idGisement}">
-                            <i class="bi bi-plus-circle"></i>
-                        </button>
+                ${item.isCanBeAssigned ?
+                            `<button class="btn btn-action assign"
+                        title="Assigner à un nouvel article"
+                        data-bs-toggle="modal"
+                        data-bs-target="#assignModal"
+                        data-gisement-id="${item.gisement.idGisement}">
+                        <i class="bi bi-plus-circle"></i>
+                    </button>`
+                : ''
+            }
             `
         ];
     });

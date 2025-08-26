@@ -7,10 +7,10 @@ import mg.apprologic.apprologic.repository.stock.StockFilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 
 @Service
 public class StockFilleService {
@@ -25,6 +25,34 @@ public class StockFilleService {
     public void delete (StockFille stockFille)
     {
         stockFilleRepository.delete(stockFille);
+    }
+
+    //filtre par article et year
+    public HashMap<Integer, Double> evolutionMensuel(Integer year, Article article) {
+        HashMap<Integer, Double> toReturn = new LinkedHashMap<>();
+        LocalDateTime now = LocalDateTime.now();
+        int currentYear = now.getYear();
+        int currentMonth = now.getMonthValue();
+        int monthsToProcess = 12;
+        if (year.equals(currentYear)) {
+            monthsToProcess = currentMonth - 1;
+        }
+
+        // Pour chaque mois, récupérer le stock à la fin du mois
+        for (int month = 1; month <= monthsToProcess; month++) {
+            LocalDateTime endOfMonth = LocalDateTime.of(year, month, 1, 0, 0)
+                    .with(TemporalAdjusters.lastDayOfMonth())
+                    .withHour(23).withMinute(59).withSecond(59);
+
+            Double stockValue = stock_article_date(endOfMonth,article);
+            toReturn.put(month, stockValue != null ? stockValue : 0.0);
+        }
+
+        return toReturn;
+    }
+    public List<StockFille> getStockFilleByArticleAndYear(Article article,Integer year)
+    {
+        return stockFilleRepository.getStockFilleByArticleAndYear(article,year);
     }
 
     public List<StockFille> stock_date(LocalDateTime dateTime,String designation)

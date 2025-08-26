@@ -1,6 +1,7 @@
 package mg.apprologic.apprologic.services.bons;
 
 import mg.apprologic.apprologic.model.bons.DemandeMere;
+import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.repository.bons.DemandeMereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,11 +9,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class BonCommandeMereService {
+public class DemandeMereService {
 
     @Autowired
     DemandeMereRepository demandeMereRepository;
 
+
+    public List<DemandeMere> getByConsommateur(Consommateur consommateur ) { return demandeMereRepository.getDemandeMereByConsommateurAndDateSortieIsNull(consommateur);}
 
     public DemandeMere getById(Integer id)
     {

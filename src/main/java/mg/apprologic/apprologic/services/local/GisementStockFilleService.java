@@ -29,9 +29,63 @@ public class GisementStockFilleService
     @Autowired
     GisementArticleService gisementArticleService;
 
+    @Autowired
+    ExistantGisementService existantGisementService;
+
+
+    public void canBeAssigned(GisementStockFille gisementStockFilleGiven)
+    {
+        List<Object[]> data = gisementStockFilleRepository.getAllOccupationGisementByLocale(null,gisementStockFilleGiven.getArticle());
+        List<GisementStockFille> gisementStockFilleList = new ArrayList<>();
+        for (Object[] temp : data)
+        {
+            GisementStockFille gisementStockFille = new GisementStockFille();
+            gisementStockFille.setArticle((Article) temp[0]);
+            gisementStockFille.setGisement((ExistantGisement) temp[1]);
+            gisementStockFille.setQuantite_in((Double) temp[2]);
+            gisementStockFille.setQuantite_out((Double) temp[3]);
+            gisementStockFille.setCapaciteMaxUnnitaire((Double) temp[4]);
+
+            gisementStockFilleList.add(gisementStockFille);
+        }
+        if (gisementStockFilleGiven.absolu()>0.01)
+        {
+            gisementStockFilleGiven.setCanBeAssigned( false);
+        }
+        else if (gisementStockFilleGiven.absolu()<0.01 && gisementStockFilleList.size()>1)
+        {
+            gisementStockFilleGiven.setCanBeAssigned(true);
+        }
+        else
+        {
+            gisementStockFilleGiven.setCanBeAssigned(false);
+        }
+    }
+    public List<GisementStockFille> allNeverUsed(Local local)
+    {
+        List<ExistantGisement> existantGisementList = existantGisementService.getNeverUsed(local);
+        List<GisementStockFille> toReturn = new ArrayList<>();
+        for (ExistantGisement existantGisement : existantGisementList)
+        {
+            GisementStockFille gisementStockFille = new GisementStockFille();
+            gisementStockFille.setGisement(existantGisement);
+            gisementStockFille.setCanBeAssigned(true);
+            gisementStockFille.setCapaciteMaxUnnitaire(1.0);
+            gisementStockFille.setQuantite_out(0.0);
+            gisementStockFille.setQuantite_in(0.0);
+            toReturn.add(gisementStockFille);
+        }
+        return toReturn;
+    }
+
     //gestion des gisements
     public List<GisementStockFille> allOccupations(Local local,Article article)
     {
+        List<GisementStockFille> neverUsed = new ArrayList<>();
+        if (article == null)
+        {
+            neverUsed = allNeverUsed(local);
+        }
         List<Object[]> data = gisementStockFilleRepository.getAllOccupationGisementByLocale(local,article);
         List<GisementStockFille> gisementStockFilleList = new ArrayList<>();
         for (Object[] temp : data)
@@ -43,39 +97,10 @@ public class GisementStockFilleService
             gisementStockFille.setQuantite_out((Double) temp[3]);
             gisementStockFille.setCapaciteMaxUnnitaire((Double) temp[4]);
 
-            System.out.println("Capacité max " +temp[4]);
-
+            canBeAssigned(gisementStockFille);
             gisementStockFilleList.add(gisementStockFille);
         }
-
-        return gisementStockFilleList;
-    }
-
-    public List<GisementStockFille> getAllLibre(Local local,Article article)
-    {
-        List<GisementStockFille> gisementStockFilleList = allOccupations(local,article);
-        List<GisementStockFille> toReturn = new ArrayList<>();
-        for (GisementStockFille gisementStockFille : gisementStockFilleList)
-        {
-            if (gisementStockFille.tauxLibre()-100 == 0.0)
-            {
-                toReturn.add(gisementStockFille);
-            }
-        }
-        return gisementStockFilleList;
-    }
-
-    public List<GisementStockFille> getAllOccuped(Local local,Article article)
-    {
-        List<GisementStockFille> gisementStockFilleList = allOccupations(local, article);
-        List<GisementStockFille> toReturn = new ArrayList<>();
-        for (GisementStockFille gisementStockFille : gisementStockFilleList)
-        {
-            if (gisementStockFille.tauxLibre()-100 != 0.0)
-            {
-                toReturn.add(gisementStockFille);
-            }
-        }
+        gisementStockFilleList.addAll(neverUsed);
         return gisementStockFilleList;
     }
 

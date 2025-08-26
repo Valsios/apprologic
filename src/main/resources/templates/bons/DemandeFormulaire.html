@@ -65,7 +65,7 @@
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="consommateur" class="form-label">Consommateur</label>
+                                    <label for="consommateur" class="form-label">Service</label>
                                     <select class="form-select" id="consommateur" name="consommateur" required>
                                         <option value="" selected disabled>Sélectionnez un Consommateur</option>
                                         <option th:each="consommateur : ${consommateur_liste}"
@@ -82,9 +82,9 @@
                             </div>
 
                             <div class="col-md-4" id="enfant-container" style="display:none;">
-                                <label for="consommateur-enfant" class="form-label">Site/Filiale</label>
+                                <label for="consommateur-enfant" class="form-label">Unité</label>
                                 <select class="form-select" id="consommateur-enfant" name="consommateurEnfant">
-                                    <option value="" selected>Sélectionnez un site/filiale (optionnel)</option>
+                                    <option value="" selected>Sélectionnez une unité (optionnel)</option>
                                     <!-- Les options seront ajoutées dynamiquement -->
                                 </select>
                             </div>

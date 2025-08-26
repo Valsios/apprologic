@@ -38,10 +38,10 @@ public class BordereauMere {
     private String description;
 
 
-    @Column(name = "colisage")
+    @Column(name = "colisage" , nullable = true)
     private Integer colisage;
 
-    @Column(name = "poids")
+    @Column(name = "poids", nullable = true)
     private Double poids;
 
 

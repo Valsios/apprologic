@@ -9,10 +9,11 @@ import mg.apprologic.apprologic.model.stock.StockFille;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.services.article.ArticleService;
 import mg.apprologic.apprologic.services.article.DeviseService;
-import mg.apprologic.apprologic.services.bons.BonCommandeFilleService;
-import mg.apprologic.apprologic.services.bons.BonCommandeMereService;
+import mg.apprologic.apprologic.services.bons.DemandeFilleService;
+import mg.apprologic.apprologic.services.bons.DemandeMereService;
 import mg.apprologic.apprologic.services.bons.BordereauFilleService;
 import mg.apprologic.apprologic.services.bons.BordereauMereService;
+import mg.apprologic.apprologic.services.consommateur.ConsommateurService;
 import mg.apprologic.apprologic.services.consommateur.TransportService;
 import mg.apprologic.apprologic.services.local.GisementStockFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
@@ -33,16 +34,18 @@ import java.util.List;
 public class BordereauController {
 
     @Autowired
-    BonCommandeMereService bonCommandeMereService;
+    DemandeMereService demandeMereService;
 
     @Autowired
-    BonCommandeFilleService bonCommandeFilleService;
+    DemandeFilleService demandeFilleService;
 
     @Autowired
     DeviseService deviseService;
 
     @Autowired
     TransportService transportService;
+    @Autowired
+    ArticleService articleService;
 
 
     @Autowired
@@ -61,11 +64,33 @@ public class BordereauController {
     @Autowired
     GisementStockFilleService gisementStockFilleService;
 
+    @Autowired
+    ConsommateurService consommateurService;
 
+
+    @PostMapping("/filtrer")
+    public String filtrer(Model model,@RequestParam("consommateur") String idConsommateur,@RequestParam("consommateurEnfant") String idConsommateurFille)
+    {
+        List<BordereauMere> toReturn = bordereauMereService.getAll();
+        if (!idConsommateur.isEmpty())
+        {
+            Integer idToFind = Integer.valueOf(idConsommateur);
+            if (idConsommateurFille != null && !idConsommateurFille.isEmpty())
+            {
+                idToFind = Integer.valueOf(idConsommateurFille);
+            }
+            toReturn = bordereauMereService.getByConsommateur(consommateurService.getById(idToFind));
+        }
+
+        model.addAttribute("consommateur_liste",consommateurService.getAllMere());
+        model.addAttribute("bordereau_liste",toReturn);
+        return "bons/BordereauListe";
+    }
 
     @GetMapping("/liste")
     public String getListeBordereau(Model model)
     {
+        model.addAttribute("consommateur_liste",consommateurService.getAllMere());
         model.addAttribute("bordereau_liste",bordereauMereService.getAll());
         return "bons/BordereauListe";
     }
@@ -89,7 +114,7 @@ public class BordereauController {
             saveBordereauFille(request,bordereauMere,bordereauFilleList,redirectAttributes);
 
             bordereauMere.getDemandeMere().setDateSortie(bordereauMere.getDateBordereau());
-            bonCommandeMereService.save(bordereauMere.getDemandeMere());
+            demandeMereService.save(bordereauMere.getDemandeMere());
 
 
 
@@ -155,7 +180,7 @@ public class BordereauController {
     protected void saveBordereauFille(HttpServletRequest request , BordereauMere bordereauMere,List<BordereauFille> bordereauFilleList,RedirectAttributes redirectAttributes)throws Exception
     {
         String warning = "";
-        List<DemandeFille> demandeFilleList = bonCommandeFilleService.getByMere(bordereauMere.getDemandeMere());
+        List<DemandeFille> demandeFilleList = demandeFilleService.getByMere(bordereauMere.getDemandeMere());
         for (DemandeFille demandeFille : demandeFilleList)
         {
             String suffix = "lignes"+ demandeFille.getIdDemandeFille()+".";
@@ -202,11 +227,12 @@ public class BordereauController {
             @RequestParam("idBcMere") Integer idBcMere,
             Model model) {
 
-        DemandeMere demandeMere = bonCommandeMereService.getById(idBcMere);
+        DemandeMere demandeMere = demandeMereService.getById(idBcMere);
         BordereauMere bordereauMere = new BordereauMere();
         bordereauMere.setDemandeMere(demandeMere);
 
-        List<DemandeFille> demandeFilleList = bonCommandeFilleService.getByMere(demandeMere);
+        List<DemandeFille> demandeFilleList = demandeFilleService.getByMere(demandeMere);
+        setPrixArticle(demandeFilleList);
 
         model.addAttribute("bordereau", bordereauMere);
         model.addAttribute("commandeFille_liste", demandeFilleList);
@@ -215,5 +241,12 @@ public class BordereauController {
         model.addAttribute("transport_liste", transportService.getAll());
 
         return "bons/BordereauFormulaire";
+    }
+
+    protected void setPrixArticle(List<DemandeFille> demandeFilleList)
+    {
+        for(DemandeFille demandeFille : demandeFilleList){
+            demandeFille.getArticle().setPrixPondere(articleService.prixPondereArticle(demandeFille.getArticle()));
+        }
     }
 }

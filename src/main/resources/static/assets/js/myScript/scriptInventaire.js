@@ -1,25 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-
-    document.querySelectorAll('[data-action="inventaire"]').forEach(button => {
-        button.addEventListener('click', function () {
-            const modal = new bootstrap.Modal(document.getElementById('inventaireModal'), {
-                backdrop: true,
-                keyboard: true,
-                focus: true
-            });
-            modal.show();
-            const articleId = this.getAttribute('data-article-id');
-            document.getElementById('submitInventaire').setAttribute('data-article-id', articleId);
-        });
-    });
-
     //inventaire
     document.getElementById('submitInventaire').addEventListener('click', async function () {
         try {
             const formData = new FormData(document.getElementById('inventaireForm'));
-
             const articleId = $(this).data('article-id');
-
             if (!articleId) throw new Error("ID d'article manquant");
 
             formData.append('articleId', articleId);

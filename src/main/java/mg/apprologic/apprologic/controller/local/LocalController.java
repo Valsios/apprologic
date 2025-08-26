@@ -5,7 +5,6 @@ import mg.apprologic.apprologic.model.local.ExistantGisement;
 import mg.apprologic.apprologic.model.local.GisementArticle;
 import mg.apprologic.apprologic.model.local.GisementStockFille;
 import mg.apprologic.apprologic.model.local.Local;
-import mg.apprologic.apprologic.model.stock.StockReel;
 import mg.apprologic.apprologic.services.article.ArticleService;
 import mg.apprologic.apprologic.services.local.ExistantGisementService;
 import mg.apprologic.apprologic.services.local.GisementArticleService;
@@ -15,18 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/local")
-public class LocaleController {
+public class LocalController {
 
 
     @Autowired
@@ -44,6 +39,21 @@ public class LocaleController {
     @Autowired
     ArticleService articleService;
 
+
+    @PostMapping("/save")
+    public String save(@ModelAttribute("gisement") ExistantGisement existantGisement)
+    {
+        existantGisementService.save(existantGisement);
+        return "redirect:/local/occupations";
+    }
+
+    @GetMapping("/nouveauGisement")
+    public String getFormGisement(Model model)
+    {
+        model.addAttribute("local_list",localService.getAllLocal());
+        model.addAttribute("gisement",new ExistantGisement());
+        return "local/AjoutGisement";
+    }
     @PostMapping("/assign")
     public ResponseEntity<Map<String, String>> assign(
             @RequestParam("capacite") String capacite,
@@ -55,6 +65,11 @@ public class LocaleController {
             Article article = articleService.getById(articleAssignId);
             ExistantGisement existantGisement = existantGisementService.getById(gisementId);
             GisementArticle gisementArticle = gisementArticleService.getBYGisement(existantGisement);
+            if (gisementArticle == null)
+            {
+                gisementArticle = new GisementArticle();
+                gisementArticle.setGisement(existantGisement);
+            }
             gisementArticle.setCapaciteMaxUnitaire(Double.parseDouble(capacite));
             gisementArticle.setArticle(article);
             gisementArticleService.save(gisementArticle);

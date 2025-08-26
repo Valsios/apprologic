@@ -154,10 +154,22 @@
                     <td class="text-end" th:text="${#numbers.formatInteger(occupation.gisement.etagere,2)}">Etagère</td>
                     <td class="text-end" th:text="${#numbers.formatInteger(occupation.gisement.bac,2)}">Bac</td>
                     <td class="text-start">
-                        <strong th:text="${occupation.article.codeArticle}"></strong>-
-                        <span th:text="${occupation.article.designation}"></span>
+                        <th:block th:if="${occupation.article != null}">
+                            <strong th:text="${occupation.article.codeArticle}"></strong>-
+                            <span th:text="${occupation.article.designation}"></span>
+                        </th:block>
+                        <th:block th:unless="${occupation.article != null}">
+                            <span class="text-muted">Pas assigné</span>
+                        </th:block>
                     </td>
-                    <td class="text-end" th:text="${occupation.capaciteMaxUnnitaire}"></td>
+                    <td class="text-end">
+                        <th:block th:if="${occupation.article != null}">
+                            <span th:text="${occupation.capaciteMaxUnnitaire}"></span>
+                        </th:block>
+                        <th:block th:unless="${occupation.article != null}" >
+                            <span class="text-muted">N/A</span>
+                        </th:block>
+                    </td>
                     <td>
                         <div class="d-flex align-items-center">
                             <div class="progress me-2" style="height: 10px; width: 80px;">
@@ -172,7 +184,7 @@
                     </td>
                     <td>
                         <!-- Nouvelle colonne avec bouton conditionnel -->
-                        <button th:if="${occupation.absolu() < 0.01}"
+                        <button th:if="${occupation.isCanBeAssigned()}"
                                 class="btn btn-action assign"
                                 title="Assigner à un nouvel article"
                                 data-bs-toggle="modal"
