@@ -10,6 +10,7 @@ import mg.apprologic.apprologic.services.article.ArticleService;
 import mg.apprologic.apprologic.services.bons.BonLivraisonFilleService;
 import mg.apprologic.apprologic.services.bons.BordereauFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
+import mg.apprologic.apprologic.util.MapUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,12 +39,12 @@ public class StockController {
     @Autowired
     ArticleService articleService;
 
-    @GetMapping("/dashboard")
-    public String dashboardArticle(Integer idArticle,Model model)
+    @PostMapping("/dashboard")
+    public String dashboardArticle(@RequestParam Integer idArticle ,@RequestParam(required = false) Integer year,Model model)
     {
         Article article = articleService.getById(idArticle);
 
-        Integer currentYear = LocalDateTime.now().getYear();
+        Integer currentYear = (year != null) ? year : LocalDateTime.now().getYear();
         //liste bordereau fille par year article
         List<BordereauFille> bordereauFilleList = bordereauFilleService.getBordereauFilleByArticleAndYear(article,currentYear);
         HashMap<String,Double> tauxSatisfactionDemande = bordereauFilleService.tauxSatisfactionDemande(bordereauFilleList);
@@ -51,6 +53,7 @@ public class StockController {
         //bon bonLivraison par year article
         List<BonLivraisonFille> bonLivraisonFilleList = bonLivraisonFilleService.getBonLivraisonFilleByArticleAndYear(article,currentYear);
         HashMap<Fournisseur,Double> tauxSatisfactionLivraison = bonLivraisonFilleService.tauxSatisfactionLivraison(bonLivraisonFilleList);
+        HashMap<String,Double> sommeSatisfaction = bonLivraisonFilleService.sommeSatisfaction(bonLivraisonFilleList);
 
         //evolution Mensuel
         HashMap<Integer,Double> evolutionMensuel = stockFilleService.evolutionMensuel(currentYear,article);
@@ -58,11 +61,23 @@ public class StockController {
         //historique evolution
         List<StockFille> stockFilleList = stockFilleService.getStockFilleByArticleAndYear(article,currentYear);
 
+        //avalaible year
+        // Liste des années disponibles (5 dernières années)
+        List<Integer> availableYears = new ArrayList<>();
+        int current = LocalDateTime.now().getYear();
+        for (int i = current - 5; i <= current; i++) {
+            availableYears.add(i);
+        }
+
         model.addAttribute("tauxSatisfactionDemande",tauxSatisfactionDemande);
-        model.addAttribute("departementPlusConsommateur",departementPlusConsommateur);
-        model.addAttribute("tauxSatisfactionLivraison",tauxSatisfactionLivraison);
+        model.addAttribute("departementPlusConsommateur", MapUtil.transformKey(departementPlusConsommateur));
+        model.addAttribute("tauxSatisfactionLivraison",MapUtil.transformKey(tauxSatisfactionLivraison));
+        model.addAttribute("sommeSatisfaction",sommeSatisfaction);
         model.addAttribute("evolutionMensuel",evolutionMensuel);
-        model.addAttribute("historique",stockFilleList);
+        model.addAttribute("historique",stockFilleService.getStockFilleByArticleAndYearWithoutAnomalie(article,currentYear));
+        model.addAttribute("article",article);
+        model.addAttribute("currentYear", currentYear);
+        model.addAttribute("availableYears", availableYears);
 
         return "article/DashboardArticle";
     }

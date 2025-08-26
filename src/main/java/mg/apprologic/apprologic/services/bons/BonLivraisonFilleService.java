@@ -28,7 +28,26 @@ public class BonLivraisonFilleService {
         bonLivraisonFilleRepository.delete(bonLivraisonFille);
     }
 
+    public HashMap<String,Double> sommeSatisfaction(List<BonLivraisonFille> bonLivraisonFilleList)
+    {
+        HashMap<String,Double> toReturn = new HashMap<>();
+        double lack = 0.0;
+        double quantiteCommande = 0.0;
+        double quantiteRecu = 0.0;
+        for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
+        {
+            quantiteCommande += bonLivraisonFille.getQuantite_demande();
+            quantiteRecu += bonLivraisonFille.getQuantite_recu();
 
+            lack += (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
+        }
+        lack = lack/bonLivraisonFilleList.size();
+
+        toReturn.put("taux",lack);
+        toReturn.put("quantiteCommande",quantiteCommande);
+        toReturn.put("quantiteRecu",quantiteRecu);
+        return toReturn;
+    }
     //filtre ARTICLE YEAR
     public HashMap<Fournisseur,Double> tauxSatisfactionLivraison(List<BonLivraisonFille> bonLivraisonFilleList)
     {
@@ -36,7 +55,7 @@ public class BonLivraisonFilleService {
         for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
         {
             Fournisseur fournisseur = bonLivraisonFille.getBonLivraisonMere().getFournisseur();
-            Double satisfactionBl = (bonLivraisonFille.getQuantite_demande()/bonLivraisonFille.getQuantite_recu())*100;
+            Double satisfactionBl = (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
             if (toReturn.containsKey(fournisseur))
             {
 
@@ -53,6 +72,7 @@ public class BonLivraisonFilleService {
 
     //END OF DAHSBOARD
 
+    @Transactional(readOnly = true)
     public List<BonLivraisonFille> getBonLivraisonFilleByArticleAndYear(Article article,Integer year)
     {
         return bonLivraisonFilleRepository.getBonLivraisonFilleByArticleAndYear(article,year);

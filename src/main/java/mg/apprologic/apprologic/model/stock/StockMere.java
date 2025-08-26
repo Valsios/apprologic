@@ -2,6 +2,7 @@ package mg.apprologic.apprologic.model.stock;
 import jakarta.persistence.*;
 import mg.apprologic.apprologic.model.bons.DemandeMere;
 import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 

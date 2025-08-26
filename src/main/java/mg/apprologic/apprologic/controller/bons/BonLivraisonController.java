@@ -98,6 +98,7 @@ public class BonLivraisonController {
     }
 
     @PostMapping("/uploadFile")
+    @Transactional
     public ResponseEntity<Map<String, String>> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "livraisonId", required = false) Integer livraisonId) {

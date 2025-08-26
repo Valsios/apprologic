@@ -15,6 +15,11 @@ public class BordereauMereService {
     BordereauMereRepository bordereauMereRepository;
 
 
+
+    public BordereauMere getBordereauMereByDemande(Integer idDemandeMere)
+    {
+        return bordereauMereRepository.getBordereauMereByIdDemandeMere(idDemandeMere);
+    }
     public List<BordereauMere> getByConsommateur(Consommateur consommateur)
     {
         return bordereauMereRepository.getBordereauMereByConsommateur(consommateur);

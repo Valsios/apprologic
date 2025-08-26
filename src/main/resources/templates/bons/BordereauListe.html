@@ -87,7 +87,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="bordereau : ${bordereau_liste}">
-                    <td >BD<span th:text="${bordereau.demandeMere.idDemandeMere}"></span></td>
+                    <td >BD<span th:text="${bordereau.idBordereauMere}"></span></td>
                     <td th:text="${#temporals.format(bordereau.demandeMere.dateDemande,'dd/MM/yyyy HH:mm')}">Date commande</td>
                     <td th:text="${bordereau.demandeMere.consommateur.description}">Département</td>
                     <td th:text="${bordereau.demandeMere.adresse.adresse}">Adresse</td>

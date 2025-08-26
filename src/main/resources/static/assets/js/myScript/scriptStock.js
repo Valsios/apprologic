@@ -6,7 +6,7 @@ $(document).ready(function() {
         searching: false, // On désactive la recherche intégrée
         ordering: true,
         info: false,
-        lengthMenu: [5, 10, 25, 50],
+        lengthMenu: [10, 20, 30, 50],
         language: {
             paginate: {
                 previous: 'Précédent',
@@ -55,7 +55,7 @@ $(document).ready(function() {
                     `<span class="text-success fw-bold text-end">${item.total_entree}</span>`,
                     `<span class="text-danger fw-bold text-end">${item.total_sortie}</span>`,
                     `<span class="text-center">${item.stock_date}</span>`,
-                    `<span class="text-center">${item.last_date || ''}</span>`,
+                    `<span class="text-center">${formatDate(item.last_date) || ''}</span>`,
 
                     `
                 <button class="btn btn-action text-center" title="Inventaire"
@@ -63,6 +63,13 @@ $(document).ready(function() {
                         data-article-id="${item.article.idArticle}">
                     <i class="bi bi-list-check"></i>
                 </button>
+                 <form action="/article/dashboard" method="post" style="display: inline-block;">
+                            <input type="hidden" name="_csrf" value="${csrfToken}">
+                            <input type="hidden" name="idArticle" value="${item.article.idArticle}">
+                            <button type="submit" class="btn btn-action ms-1" title="Statistiques">
+                                <i class="bi bi-bar-chart"></i>
+                            </button>
+                        </form>
                 `
                 ]);
 
@@ -87,5 +94,24 @@ $(document).ready(function() {
             $('#submitInventaire').data('article-id', articleId);
             modal.show();
         });
+    }
+
+    // Fonction pour formater les dates en JavaScript
+    function formatDate(dateString) {
+        if (!dateString) return '';
+
+        const date = new Date(dateString);
+
+        // Vérifier si la date est valide
+        if (isNaN(date.getTime())) return dateString;
+
+        // Formater la date comme "yyyy-MM-dd HH:mm"
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 });

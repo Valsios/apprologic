@@ -1,18 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
-    $('#article-table').DataTable({
-        pagingType: "simple_numbers",
-        responsive: true,
-        searching: false,
-        ordering: true,
-        info: false,
-        lengthMenu: [5, 10, 25, 50],
-        language: {
-            paginate: {
-                previous: 'Précédent',
-                next: 'Suivant'
+
+
+        $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false,
+            ordering: true,
+            info: false,
+            lengthMenu: [10, 20, 30, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                }
             }
-        }
-    });
+        });
+
     const consommateurSelect = document.getElementById('consommateur');
     const enfantContainer = document.getElementById('enfant-container');
     const enfantSelect = document.getElementById('consommateur-enfant');

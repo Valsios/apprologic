@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>ASECNA - Approvisionnement et Achat</title>
     <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
@@ -98,7 +100,7 @@
                     <td class="text-success fw-bold text-end" th:text="${stock_fille.total_entree}">Entrée</td>
                     <td class="text-danger fw-bold text-end" th:text="${stock_fille.total_sortie}">Sortie</td>
                     <td th:text="${stock_fille.stock_date}" class="text-center">En stock</td>
-                    <td th:text="${stock_fille.last_date}" class="text-center">Dernier Mouvement</td>
+                    <td th:text="${#temporals.format(stock_fille.last_date,'yyyy-MM-dd HH:mm')}" class="text-center">Dernier Mouvement</td>
                     <td class="text-center">
                         <button class="btn btn-action" title="Inventaire"
                                 data-action="inventaire"
@@ -106,6 +108,12 @@
                         >
                             <i class="bi bi-list-check"></i>
                         </button>
+                        <form th:action="@{/article/dashboard}" method="post" style="display: inline-block;">
+                            <input type="hidden" name="idArticle" th:value="${stock_fille.article.getIdArticle()}">
+                            <button type="submit" class="btn btn-action ms-1" title="Statistiques">
+                                <i class="bi bi-bar-chart"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 <tr th:if="${liste_article.isEmpty()}">

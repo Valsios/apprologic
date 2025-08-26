@@ -18,6 +18,9 @@ public interface StockFilleRepository extends JpaRepository<StockFille,Integer> 
     @Query("SELECT s FROM StockFille s WHERE year (s.stockMere.dateMouvement) = :year AND s.article = :article")
     List<StockFille> getStockFilleByArticleAndYear(Article article ,Integer year);
 
+    @Query("SELECT s FROM StockFille s WHERE year (s.stockMere.dateMouvement) = :year AND s.article = :article AND (s.stockMere.demandeMere IS NOT NULL OR s.stockMere.bonLivraisonMere IS NOT NULL )")
+    List<StockFille> getStockFilleByArticleAndYearWithoutAnomalie(Article article ,Integer year);
+
     @Query("SELECT s.article, " +
             "SUM(CASE WHEN sm.dateMouvement <= COALESCE(:date, CURRENT_TIMESTAMP) THEN s.entree ELSE 0.0 END) AS total_entree, " +
             "SUM(CASE WHEN sm.dateMouvement <= COALESCE(:date, CURRENT_TIMESTAMP) THEN s.sortie ELSE 0.0 END) AS total_sortie, " +

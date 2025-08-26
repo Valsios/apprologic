@@ -1,10 +1,482 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Dashboard Article</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .stat-card {
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+            background: white;
+            height: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        .card-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        .header {
+            background: linear-gradient(135deg, #2980b9 0%, #2c3e50 100%);
+            color: white;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+        h1 {
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .consumption-badge {
+            background: rgba(41, 128, 185, 0.1);
+            color: #2980b9;
+            font-weight: 600;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .percentage {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2980b9;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="container mt-4">
+            <h3 class="text-black-50 mb-4"><i class="bi bi-bar-chart me-2"></i>Analyse :
+                <strong th:text="${article.codeArticle}"></strong>-<span th:text="${article.designation}"></span>
+            </h3>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Options d'analyse</h5>
+                    <form th:action="@{/article/dashboard}" method="post" class="row g-3 align-items-end">
+                        <input type="hidden" name="idArticle" th:value="${article.idArticle}">
+                        <div class="col-md-4">
+                            <label for="annee" class="form-label">Sélectionner l'année d'analyse</label>
+                            <select class="form-select" id="annee" name="year">
+                                <option th:each="year : ${availableYears}"
+                                        th:value="${year}"
+                                        th:text="${year}"
+                                        th:selected="${year == currentYear}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-filter me-1"></i> Appliquer
+                            </button>
+                        </div>
+
+                        <div class="col-md-6 text-end">
+                    <span class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Données analysées pour l'année: <strong th:text="${currentYear} ?: 'Toutes'"></strong>
+                    </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="chart-grid mb-4">
+                <!-- Carte: Évolution mensuelle du stock -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Évolution mensuelle du stock</h5>
+                            <button id="toggleHistoryBtn" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-list-ul me-1"></i>Afficher l'historique
+                            </button>
+                        </div>
+                        <span class="consumption-badge">Quantité en stock</span>
+                        <div class="chart-container">
+                            <canvas id="monthlyStockChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="historyTable" class="card mt-4" style="display: none;">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Historique détaillé des mouvements de stock</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="article-table">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center" >Date</th>
+                                <th class="text-center" >Entrée</th>
+                                <th class="text-center" >Sortie</th>
+                                <th class="text-center" >Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="mouvement : ${historique}">
+                                <td class="text-center" th:text="${#temporals.format(mouvement.stockMere.dateMouvement, 'dd/MM/yyyy HH:mm')}" style="width: 15%"></td>
+                                <td class="text-center" th:text="${mouvement.entree}"></td>
+                                <td class="text-center" th:text="${mouvement.sortie}"></td>
+                                <td class="text-center" >
+                                    <button class="btn btn-action"
+                                            title="Afficher pièce jointe"
+                                            data-action="view-attachment"
+                                            th:attr="data-stock-id=${mouvement.stockMere.idStockMere}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- Grille des statistiques -->
+            <div class="stats-grid">
+
+                <!-- Carte 1: Satisfaction des demandes -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Satisfaction des demandes</h5>
+                        <div class="percentage"><span th:text="${#numbers.formatDecimal(tauxSatisfactionDemande.get('tauxSatisfactionDemande'),1,2,'POINT')}"></span>%</div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #3498db;"></div>
+                                <span>Demandées: <span th:text="${tauxSatisfactionDemande.get('quantiteDemande')}"></span></span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #2ecc71;"></div>
+                                <span>Sorties: <span th:text="${tauxSatisfactionDemande.get('quantiteSortie')}"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte 2: Satisfaction des livraisons -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Satisfaction des livraisons</h5>
+                        <div class="percentage"><span th:text="${#numbers.formatDecimal(sommeSatisfaction.get('taux'),1,2,'POINT')}"></span>%</div>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                                <span>Commandées: <span th:text="${sommeSatisfaction.get('quantiteCommande')}"></span></span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #f39c12;"></div>
+                                <span>Livrées: <span th:text="${sommeSatisfaction.get('quantiteRecu')}"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grille des graphiques -->
+            <div class="chart-grid">
+                <!-- Carte 3: Départements les plus consommateurs -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Services et ses consommations</h5>
+                        <span class="consumption-badge">Consommation en <span th:text="${article.udm.description}"></span></span>
+                        <div class="chart-container">
+                            <canvas id="consumptionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte 4: Satisfaction des livraisons par fournisseur -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Satisfaction des livraisons par fournisseur</h5>
+                        <span class="consumption-badge">Taux de satisfaction en %</span>
+                        <div class="chart-container">
+                            <canvas id="deliveryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script th:src="@{/assets/js/Chart.js}"></script>
+<script src="/assets/js/myScript/scriptStockFile.js"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Initialisation de DataTable
+        const dataTable = $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false, // On désactive la recherche intégrée
+            ordering: true,
+            info: false,
+            lengthMenu: [10, 20, 30, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                },
+            },
+            processing: true,
+            serverSide: false
+        });
+
+        // Graphique de consommation
+        const ctxConsumption = document.getElementById('consumptionChart').getContext('2d');
+        const descriptions = [[${departementPlusConsommateur.keySet()}]];
+        const valeurs = [[${departementPlusConsommateur.values()}]];
+
+        const consumptionChart = new Chart(ctxConsumption, {
+            type: 'bar',
+            data: {
+                labels: descriptions,
+                datasets: [{
+                    label: 'Consommation',
+                    data: valeurs,
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Consommation: ${context.raw} `;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Quantité' }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Graphique de satisfaction des livraisons
+        const ctxDelivery = document.getElementById('deliveryChart').getContext('2d');
+        const fournisseurs = [[${tauxSatisfactionLivraison.keySet()}]];
+        const taux = [[${tauxSatisfactionLivraison.values()}]];
+
+        const deliveryChart = new Chart(ctxDelivery, {
+            type: 'bar',
+            data: {
+                labels: fournisseurs,
+                datasets: [{
+                    label: 'Taux de satisfaction (%)',
+                    data: taux,
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Satisfaction: ${context.raw}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: 'Moyenne de satisfaction (%)' }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Graphique d'évolution mensuelle du stock
+        const ctxStock = document.getElementById('monthlyStockChart').getContext('2d');
+        const mois = [[${evolutionMensuel.keySet()}]];
+        const quantites = [[${evolutionMensuel.values()}]];
+        const nomsMois = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const moisLabels = mois.map(numero => {
+            // S'assurer que le numéro est dans la plage valide (1-12)
+            const index = Math.max(0, Math.min(11, parseInt(numero) - 1));
+            return nomsMois[index];
+        });
+
+
+        const stockChart = new Chart(ctxStock, {
+            type: 'line',
+            data: {
+                labels: moisLabels,
+                datasets: [{
+                    label: 'Stock mensuel',
+                    data: quantites,
+                    backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                    borderColor: 'rgba(155, 89, 182, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(155, 89, 182, 1)',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Stock: ${context.raw} ${/*[[${article.udm.description}]]*/ 'unité'}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantité'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mois'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gestion de l'affichage/masquage de l'historique
+        document.getElementById('toggleHistoryBtn').addEventListener('click', function() {
+            const historyTable = document.getElementById('historyTable');
+            const isVisible = historyTable.style.display !== 'none';
+
+            if (isVisible) {
+                historyTable.style.display = 'none';
+                this.innerHTML = '<i class="bi bi-list-ul me-2"></i>Afficher l\'historique détaillé';
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-primary');
+            } else {
+                historyTable.style.display = 'block';
+                this.innerHTML = '<i class="bi bi-eye-slash me-2"></i>Masquer l\'historique détaillé';
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-primary');
+
+                // Scroll doux vers le tableau
+                historyTable.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Bouton de fermeture dans l'en-tête du tableau
+        document.getElementById('closeHistoryBtn').addEventListener('click', function() {
+            const historyTable = document.getElementById('historyTable');
+            const toggleBtn = document.getElementById('toggleHistoryBtn');
+
+            historyTable.style.display = 'none';
+            toggleBtn.innerHTML = '<i class="bi bi-list-ul me-2"></i>Afficher l\'historique détaillé';
+            toggleBtn.classList.remove('btn-primary');
+            toggleBtn.classList.add('btn-outline-primary');
+        });
+    });
+</script>
 
 </body>
 </html>

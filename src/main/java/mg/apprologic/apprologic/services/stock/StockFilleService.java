@@ -54,6 +54,10 @@ public class StockFilleService {
     {
         return stockFilleRepository.getStockFilleByArticleAndYear(article,year);
     }
+    public List<StockFille> getStockFilleByArticleAndYearWithoutAnomalie(Article article,Integer year)
+    {
+        return stockFilleRepository.getStockFilleByArticleAndYearWithoutAnomalie(article,year);
+    }
 
     public List<StockFille> stock_date(LocalDateTime dateTime,String designation)
     {
@@ -79,6 +83,10 @@ public class StockFilleService {
     {
 
         List<Object[]> dataTemp = stockFilleRepository.findStockFilleByArticle(dateTime,article);
+        if (dataTemp.size()==0)
+        {
+            return 0.0;
+        }
         Object[] data = dataTemp.get(0);
         StockFille stockFilleTemp = new StockFille();
         stockFilleTemp.setArticle((Article) data[0]);

@@ -1,6 +1,7 @@
 package mg.apprologic.apprologic.services.bons;
 
 import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
+import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.repository.bons.BonLivraisonMereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

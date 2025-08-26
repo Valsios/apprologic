@@ -6,6 +6,7 @@ import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.repository.stock.StockMereRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +34,12 @@ public class StockMereService {
     public List<StockMere> stockMeresAnomalie()
     {
         return stockMereRepository.getStockMereByDemandeMereIsNullAndBonLivraisonMereIsNull();
+    }
+
+
+    public StockMere getById(Integer id)
+    {
+        return stockMereRepository.getById(id);
     }
 
     public List<AnomalieStock> getAnomaliesStock()

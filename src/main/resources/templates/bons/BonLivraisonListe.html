@@ -91,20 +91,19 @@
                     <td th:text="${livraison.devise.designation}">Devise</td>
                     <td th:text="${#temporals.format(livraison.dateReception,'dd/MM/yyyy HH:mm')}">Date livraison</td>
                     <td>
-                        <th:block th:if="${livraison.pieceJointe == null}" >
+
                             <button class="btn btn-action " title="Ajouter pièce jointe"
                                     data-action="upload"
                                     th:attr="data-livraison-id=${livraison.idBlMere}"
                             >
-                                <i class="bi bi-plus-circle"></i>
+                                <i class="bi bi-pin"></i>
                             </button>
-                        </th:block>
-                        <th:block th:unless="${livraison.pieceJointe == null}">
+                        <th:block th:if="${livraison.pieceJointe != null}">
                             <button class="btn btn-action"
                                     title="Afficher pièce jointe"
                                     data-action="view-attachment"
                                     th:attr="data-livraison-id=${livraison.idBlMere}">
-                                <i class="bi bi-paperclip"></i>
+                                <i class="bi bi-eye"></i>
                             </button>
                         </th:block>
                     </td>
@@ -129,7 +128,7 @@
             searching: false,
             ordering: true,
             info: false,
-            lengthMenu: [5, 10, 25, 50],
+            lengthMenu: [10, 20, 30, 50],
             language: {
                 paginate: {
                     previous: 'Précédent',

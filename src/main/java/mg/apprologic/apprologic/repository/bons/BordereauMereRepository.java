@@ -13,4 +13,7 @@ public interface BordereauMereRepository extends JpaRepository<BordereauMere,Int
 
     @Query("SELECT b FROM BordereauMere b where b.demandeMere.consommateur = :consommateur")
     public List<BordereauMere> getBordereauMereByConsommateur(Consommateur consommateur);
+
+    @Query("SELECT b FROM BordereauMere b WHERE b.demandeMere.idDemandeMere = :idDemandeMere")
+    public BordereauMere getBordereauMereByIdDemandeMere(Integer idDemandeMere);
 }

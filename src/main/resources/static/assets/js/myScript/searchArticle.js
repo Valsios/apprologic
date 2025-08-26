@@ -6,7 +6,7 @@ $(document).ready(function() {
         searching: false, // On désactive la recherche intégrée
         ordering: true,
         info: false,
-        lengthMenu: [5, 10, 25, 50],
+        lengthMenu: [10, 20, 30, 50],
         language: {
             paginate: {
                 previous: 'Précédent',

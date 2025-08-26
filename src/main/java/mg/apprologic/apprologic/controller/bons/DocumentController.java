@@ -8,10 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import mg.apprologic.apprologic.model.bons.BordereauFille;
 import mg.apprologic.apprologic.model.bons.BordereauMere;
 import mg.apprologic.apprologic.model.stock.StockFille;
+import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.model.utilisateur.Utilisateur;
+import mg.apprologic.apprologic.services.bons.BonLivraisonMereService;
 import mg.apprologic.apprologic.services.bons.BordereauFilleService;
 import mg.apprologic.apprologic.services.bons.BordereauMereService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
+import mg.apprologic.apprologic.services.stock.StockMereService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
@@ -20,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
@@ -55,6 +59,63 @@ public class DocumentController {
     @Autowired
     StockFilleService stockFilleService;
 
+    @Autowired
+    BonLivraisonMereService bonLivraisonMereService;
+
+    @Autowired
+    StockMereService stockMereService;
+
+
+    @GetMapping("/viewFileStock/{stockMereId}")
+    @Transactional
+    public ResponseEntity<byte[]> viewFilestockMere(@PathVariable Integer stockMereId,Authentication authentication) {
+
+        StockMere stockMere = stockMereService.getById(stockMereId);
+        System.out.println("STOCK MERE ID : "+stockMere.getIdStockMere());
+        byte[] fileContent = null;
+        if (stockMere.getDemandeMere() == null)
+        {
+            fileContent = bonLivraisonMereService.getPieceJointeById(stockMere.getBonLivraisonMere().getIdBlMere());
+        }
+        if (stockMere.getDemandeMere() != null)
+        {
+            BordereauMere bordereauMere = bordereauMereService.getBordereauMereByDemande(stockMere.getDemandeMere().getIdDemandeMere());
+            List<BordereauFille> bordereauFilles = bordereauFilleService.getAllByMere(bordereauMere);
+            try {
+                // 2. Create web context - THE CORRECT WAY
+                Context context = new Context();
+                context.setVariable("mere", bordereauMere);
+                context.setVariable("filles", bordereauFilles);
+                context.setVariable("total",BordereauMere.getTotal(bordereauFilles));
+
+                Utilisateur auth = (Utilisateur)authentication.getPrincipal();
+                context.setVariable("userName", auth.getNom() + " "+auth.getPrenom());
+                //process the page
+                String htmlContent = templateEngine.process("bordereau", context);
+
+
+                // 6. Generate PDF (keep your existing PDF generation code)
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocumentFromString(htmlContent);
+                renderer.layout();
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                renderer.createPDF(outputStream);
+                fileContent = outputStream.toByteArray();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                return ResponseEntity.internalServerError().build();
+            }
+
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(fileContent);
+    }
     @GetMapping("/download-stock-excel")
     public ResponseEntity<ByteArrayResource> downloadStockExcel() {
         List<StockFille> stockFilleList = stockFilleService.stock_date(null, null);

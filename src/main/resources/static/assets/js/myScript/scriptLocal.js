@@ -6,24 +6,26 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#gisementId').val(gisementId);
     });
 
-    // Initialisation DataTable
-    const dataTable = $('#article-table').DataTable({
-        pagingType: "simple_numbers",
-        responsive: true,
-        searching: false, // On désactive la recherche intégrée
-        ordering: true,
-        info: false,
-        lengthMenu: [5, 10, 25, 50],
-        language: {
-            paginate: {
-                previous: 'Précédent',
-                next: 'Suivant'
-            }
-        },
-        processing : true,
-        // Désactive le traitement côté client pour nos filtres personnalisés
-        serverSide: false
-    });
+
+        // Initialisation DataTable
+        const dataTable = $('#article-table').DataTable({
+            pagingType: "simple_numbers",
+            responsive: true,
+            searching: false, // On désactive la recherche intégrée
+            ordering: true,
+            info: false,
+            lengthMenu: [10, 20, 30, 50],
+            language: {
+                paginate: {
+                    previous: 'Précédent',
+                    next: 'Suivant'
+                }
+            },
+            processing: true,
+            // Désactive le traitement côté client pour nos filtres personnalisés
+            serverSide: false
+        });
+
 
     // Stocke l'instance DataTable pour un accès global
     window.dataTable = dataTable;
