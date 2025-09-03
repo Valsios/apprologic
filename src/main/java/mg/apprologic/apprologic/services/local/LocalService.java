@@ -13,9 +13,19 @@ public class LocalService {
     @Autowired
     LocalRepository localRepository;
 
+    public void save(Local lo)
+    {
+        localRepository.save(lo);
+    }
+
     public List<Local> getAllLocal()
     {
         return localRepository.findAll();
+    }
+
+    public Local getByDesignation(String designation)
+    {
+        return localRepository.getLocalByDesignation(designation);
     }
     public Local getById(Integer id )
     {

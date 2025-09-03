@@ -16,6 +16,7 @@ public class Udm {
     @Column(name = "acronyme", nullable = false)
     private String acronyme;
 
+
     // Getters et Setters
 
     public Integer getIdUdm() {

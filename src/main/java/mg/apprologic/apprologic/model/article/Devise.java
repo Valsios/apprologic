@@ -16,7 +16,21 @@ public class Devise {
     @Column(name = "acronyme", nullable = false)
     private String acronyme;
 
+
+
+    @Column(name = "coursariary", nullable = false)
+    private Double coursAriary;
+
     // Getters et Setters
+
+
+    public Double getCoursAriary() {
+        return coursAriary;
+    }
+
+    public void setCoursAriary(Double coursAriary) {
+        this.coursAriary = coursAriary;
+    }
 
     public Integer getIdDevise() {
         return idDevise;

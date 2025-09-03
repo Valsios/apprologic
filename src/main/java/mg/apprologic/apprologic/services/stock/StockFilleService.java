@@ -35,7 +35,7 @@ public class StockFilleService {
         int currentMonth = now.getMonthValue();
         int monthsToProcess = 12;
         if (year.equals(currentYear)) {
-            monthsToProcess = currentMonth - 1;
+            monthsToProcess = currentMonth ;
         }
 
         // Pour chaque mois, récupérer le stock à la fin du mois

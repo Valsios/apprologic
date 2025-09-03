@@ -77,5 +77,10 @@ public class ExistantGisement {
     public void setBac(Integer bac) {
         this.bac = bac;
     }
+
+    public String toString()
+    {
+        return this.getLocal().getDesignation()+" "+this.getTrave()+" "+this.getAlveole()+" " +this.getEtagere()+" "+this.getBac()+";";
+    }
 }
 

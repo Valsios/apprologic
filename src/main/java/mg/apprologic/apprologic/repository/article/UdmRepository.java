@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface UdmRepository extends JpaRepository<Udm,Integer> {
+
+    public Udm getUdmByAcronyme(String acronyme);
 }

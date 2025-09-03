@@ -131,7 +131,7 @@ public class InventaireController {
                 bonLivraisonFille.setArticle(stockFille.getArticle());
                 bonLivraisonFille.setQuantite_recu(stockFille.getEntree());
 
-                gisementStockFilleService.firstInBonLivraison(bonLivraisonFille);
+                gisementStockFilleService.firstInBonLivraison(bonLivraisonFille,new StringBuilder(),new StringBuilder());
 
             }
             else if (stockFille.getSortie()>stockFille.getEntree())
@@ -145,7 +145,7 @@ public class InventaireController {
                 bordereauFille.setDemandeFille(demandeFille);
                 bordereauFille.setBordereauMere(bordereauMere);
                 bordereauFille.setQuantiteSortie(stockFille.getSortie());
-                gisementStockFilleService.firstOutBordereauFille(bordereauFille);
+                gisementStockFilleService.firstOutBordereauFille(bordereauFille,new StringBuilder());
             }
         }
         catch (Exception e)

@@ -1,8 +1,19 @@
 $(document).ready(function() {
     // Initialisation de DataTable
     const dataTable = $('#article-table').DataTable({
+
         pagingType: "simple_numbers",
-        responsive: true,
+        // Activation du défilement horizontal
+        scrollX: true,
+
+        // Empêcher le wrapping du texte
+        responsive: false,
+        columnDefs: [
+            {
+                targets: '_all',
+                className: 'text-nowrap'
+            }
+        ],
         searching: false, // On désactive la recherche intégrée
         ordering: true,
         info: false,
@@ -52,16 +63,16 @@ $(document).ready(function() {
                     `<span class="text-start">${item.designation || ''}</span>`,
                     `<span class="text-end">${item.seuilMin || ''}</span>`,
                     `<span class="text-end">${item.famille.description || ''}</span>`,
+                    `<span class="text-end">${item.centreBudgetaire.codeCentre || ''}</span>`,
                     `<span class="text-start">${item.udm.acronyme || ''}</span>`,
-
                     `
-               <div class="btn-group" role="group">
+                        <div class="btn-group" role="group">
                             <a class="btn btn-action edit" title="Modifier"
-                               th:href="@{'/article/edit/' + ${item.idArticle}}">
+                               href="/article/edit/${item.idArticle}">
                                 <i class="bi bi-pencil"></i>
                             </a>
                         </div>
-                `
+                        `
                 ]);
 
                 dataTable.clear().rows.add(rows).draw();

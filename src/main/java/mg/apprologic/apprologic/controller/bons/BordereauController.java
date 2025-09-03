@@ -26,6 +26,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,18 +71,20 @@ public class BordereauController {
 
 
     @PostMapping("/filtrer")
-    public String filtrer(Model model,@RequestParam("consommateur") String idConsommateur,@RequestParam("consommateurEnfant") String idConsommateurFille)
+    public String filtrer(Model model,@RequestParam(required = false) String idConsommateur,@RequestParam(required = false) String idConsommateurFille,
+                          @RequestParam(required = false) String debut,@RequestParam(required = false) String fin)
     {
-        List<BordereauMere> toReturn = bordereauMereService.getAll();
+        List<BordereauMere> toReturn  = new ArrayList<>();
+        String final_id = "";
         if (!idConsommateur.isEmpty())
         {
-            Integer idToFind = Integer.valueOf(idConsommateur);
+           final_id = idConsommateur;
             if (idConsommateurFille != null && !idConsommateurFille.isEmpty())
             {
-                idToFind = Integer.valueOf(idConsommateurFille);
+               final_id = idConsommateurFille;
             }
-            toReturn = bordereauMereService.getByConsommateur(consommateurService.getById(idToFind));
         }
+        toReturn = bordereauMereService.getByConsommateurDate(idConsommateur,debut,fin);
 
         model.addAttribute("consommateur_liste",consommateurService.getAllMere());
         model.addAttribute("bordereau_liste",toReturn);
@@ -101,7 +105,7 @@ public class BordereauController {
         StockMere stockMere = null;
         List<StockFille> stockFilleList = new ArrayList<StockFille>();
         List<BordereauFille> bordereauFilleList = new ArrayList<BordereauFille>();
-
+        StringBuilder builderRepartition = new StringBuilder();
         try
         {
 
@@ -128,7 +132,16 @@ public class BordereauController {
             saveStockFille(bordereauFilleList,stockMere,stockFilleList);
 
             //process gisement
-            processGisement(bordereauFilleList);
+            processGisement(bordereauFilleList,builderRepartition);
+
+            //data file repartition
+            String fileName = "repartitionBD_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
+            String csvContent = "Article;Gisement;Quantité;Vague\n" + builderRepartition.toString().replace(" ","_");
+
+            redirectAttributes.addFlashAttribute("csvContent", csvContent);
+            redirectAttributes.addFlashAttribute("csvFileName", fileName);
+            redirectAttributes.addFlashAttribute("showDownload", true);
+            //end of
 
 
             System.out.println("SAVED");
@@ -189,7 +202,7 @@ public class BordereauController {
             bordereauFille.setDemandeFille(demandeFille);
             bordereauFille.setBordereauMere(bordereauMereService.getById(bordereauMere.getIdBordereauMere()));
 
-            bordereauFille.setPrixUnitaire(request.getParameter(suffix+"prixUnitaire"));
+            bordereauFille.setPrixUnitaire(Double.parseDouble(request.getParameter(suffix+"prixUnitaire"))/bordereauFille.getBordereauMere().getDevise().getCoursAriary());
             bordereauFille.setQuantiteSortie(request.getParameter(suffix+"quantiteLivree"));
 
             Article article = bordereauFille.getDemandeFille().getArticle();
@@ -215,11 +228,11 @@ public class BordereauController {
         }
     }
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processGisement(List<BordereauFille> bordereauFilleList)throws Exception
+    public void processGisement(List<BordereauFille> bordereauFilleList,StringBuilder repartitionSortie)throws Exception
     {
         for (BordereauFille bordereauFille : bordereauFilleList)
         {
-            gisementStockFilleService.firstOutBordereauFille(bordereauFille);
+            gisementStockFilleService.firstOutBordereauFille(bordereauFille,repartitionSortie);
         }
     }
     @PostMapping("/create")
@@ -243,6 +256,8 @@ public class BordereauController {
         return "bons/BordereauFormulaire";
     }
 
+
+    @Transactional
     protected void setPrixArticle(List<DemandeFille> demandeFilleList)
     {
         for(DemandeFille demandeFille : demandeFilleList){

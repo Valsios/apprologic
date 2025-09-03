@@ -5,11 +5,13 @@ package mg.apprologic.apprologic.controller.bons;
 import com.opencsv.CSVWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mg.apprologic.apprologic.model.article.Article;
 import mg.apprologic.apprologic.model.bons.BordereauFille;
 import mg.apprologic.apprologic.model.bons.BordereauMere;
 import mg.apprologic.apprologic.model.stock.StockFille;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.model.utilisateur.Utilisateur;
+import mg.apprologic.apprologic.services.article.ArticleService;
 import mg.apprologic.apprologic.services.bons.BonLivraisonMereService;
 import mg.apprologic.apprologic.services.bons.BordereauFilleService;
 import mg.apprologic.apprologic.services.bons.BordereauMereService;
@@ -66,6 +68,22 @@ public class DocumentController {
     StockMereService stockMereService;
 
 
+    @Autowired
+    ArticleService articleService;
+
+
+
+    @GetMapping("/downloadRepartitionLivraison")
+    public ResponseEntity<ByteArrayResource> downloadRepartitionLivraison(String fileName, String content)
+    {
+        byte[] csvBytes = content.toString().getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(csvBytes.length)
+                .body(new ByteArrayResource(csvBytes));
+    }
+
     @GetMapping("/viewFileStock/{stockMereId}")
     @Transactional
     public ResponseEntity<byte[]> viewFilestockMere(@PathVariable Integer stockMereId,Authentication authentication) {
@@ -115,6 +133,32 @@ public class DocumentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(fileContent);
+    }
+
+
+    @PostMapping("/exportStockAnnuel")
+    @Transactional
+    public ResponseEntity<ByteArrayResource> downloadStockArticleExcel(@RequestParam Integer currentYear,@RequestParam Integer idArticle) {
+
+        Article article = articleService.getById(idArticle);
+        List<StockFille> stockFilleList = stockFilleService.getStockFilleByArticleAndYearWithoutAnomalie(article,currentYear);
+
+        // 1. Créer le contenu CSV
+        StringBuilder csvContent = new StringBuilder();
+        csvContent.append(StockFille.getColumnForArticle()).append("\n"); // Entête
+        stockFilleList.forEach(stock -> csvContent.append(stock.toStringArticleStock()).append("\n"));
+
+        // 2. Convertir en bytes (UTF-8 important)
+        byte[] csvBytes = csvContent.toString().getBytes(StandardCharsets.UTF_8);
+
+        // 3. Créer la réponse
+        String fileName = "stockArticle_"+article.getDesignation()+"_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(csvBytes.length)
+                .body(new ByteArrayResource(csvBytes));
     }
     @GetMapping("/download-stock-excel")
     public ResponseEntity<ByteArrayResource> downloadStockExcel() {

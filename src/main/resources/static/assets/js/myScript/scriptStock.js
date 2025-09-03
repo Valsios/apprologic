@@ -2,7 +2,17 @@ $(document).ready(function() {
     // Initialisation de DataTable
     const dataTable = $('#article-table').DataTable({
         pagingType: "simple_numbers",
-        responsive: true,
+        // Activation du défilement horizontal
+        scrollX: true,
+
+        // Empêcher le wrapping du texte
+        responsive: false,
+        columnDefs: [
+            {
+                targets: '_all',
+                className: 'text-nowrap'
+            }
+        ],
         searching: false, // On désactive la recherche intégrée
         ordering: true,
         info: false,

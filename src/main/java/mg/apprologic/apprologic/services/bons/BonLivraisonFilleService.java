@@ -2,6 +2,7 @@ package mg.apprologic.apprologic.services.bons;
 
 import mg.apprologic.apprologic.model.article.Article;
 import mg.apprologic.apprologic.model.bons.BonLivraisonFille;
+import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
 import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.model.fournisseur.Fournisseur;
 import mg.apprologic.apprologic.repository.bons.BonLivraisonFilleRepository;
@@ -17,6 +18,11 @@ public class BonLivraisonFilleService {
 
     @Autowired
     BonLivraisonFilleRepository bonLivraisonFilleRepository;
+
+    public List<BonLivraisonFille> getByMere(BonLivraisonMere bonLivraisonMere)
+    {
+        return bonLivraisonFilleRepository.getBonLivraisonFilleByBonLivraisonMere(bonLivraisonMere);
+    }
 
     public void save(BonLivraisonFille bonLivraisonFille)
     {

@@ -42,27 +42,33 @@
                                th:field="*{udm}" hidden>
 
                         <input type="text" class="form-control"
+                               th:field="*{centreBudgetaire}" hidden>
+
+                        <input type="text" class="form-control"
                                th:field="*{famille}" hidden>
 
                         <div class="mb-3">
-                            <label for="codePgi" class="form-label">Code Article</label>
+                            <label for="codePgi" class="form-label">Code Article<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="codePgi"
                                    th:field="*{codeArticle}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="designation" class="form-label">Désignation</label>
+                            <label for="designation" class="form-label">Désignation<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="designation"
                                    th:field="*{designation}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="seuil" class="form-label">Seuil minimum</label>
+                            <label for="seuil" class="form-label">Seuil minimum<span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="seuil"
                                    th:field="*{seuilMin}" required>
                         </div>
 
-                        <div class="d-flex justify-content-end mt-4">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a th:href="@{/article/liste}" class="btn btn-outline-secondary">
+                                <i class="bi bi-list me-1"></i> Liste
+                            </a>
                             <button type="submit" class="btn btn-primary">Soumettre</button>
                         </div>
                     </form>

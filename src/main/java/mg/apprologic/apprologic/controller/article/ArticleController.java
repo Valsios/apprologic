@@ -2,7 +2,9 @@ package mg.apprologic.apprologic.controller.article;
 
 import jakarta.servlet.http.HttpServletRequest;
 import mg.apprologic.apprologic.model.article.Article;
+import mg.apprologic.apprologic.model.article.CentreBudgetaire;
 import mg.apprologic.apprologic.services.article.ArticleService;
+import mg.apprologic.apprologic.services.article.CentreBudgetaireService;
 import mg.apprologic.apprologic.services.article.FamilleService;
 import mg.apprologic.apprologic.services.article.UdmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,10 @@ public class ArticleController {
 
     @Autowired
     FamilleService familleService;
+
+
+    @Autowired
+    CentreBudgetaireService centreBudgetaireService;
 
     //search criteria
     @PostMapping("/search")
@@ -64,6 +70,7 @@ public class ArticleController {
         model.addAttribute("article",new Article());
         model.addAttribute("udmList",udmService.getAll());
         model.addAttribute("familleList",familleService.getAll());
+        model.addAttribute("centreList",centreBudgetaireService.getAll());
         return "article/AjoutArticle";
     }
 

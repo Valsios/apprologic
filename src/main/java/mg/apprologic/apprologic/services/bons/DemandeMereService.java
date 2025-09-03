@@ -15,6 +15,11 @@ public class DemandeMereService {
     DemandeMereRepository demandeMereRepository;
 
 
+    public Integer countDemandeMere(Integer year)
+    {
+        return demandeMereRepository.countDemandeMereByYear(year);
+    }
+
     public List<DemandeMere> getByConsommateur(Consommateur consommateur ) { return demandeMereRepository.getDemandeMereByConsommateurAndDateSortieIsNull(consommateur);}
 
     public DemandeMere getById(Integer id)

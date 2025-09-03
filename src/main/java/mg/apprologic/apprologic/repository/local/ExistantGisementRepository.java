@@ -14,4 +14,7 @@ public interface ExistantGisementRepository extends JpaRepository<ExistantGiseme
     @Query("SELECT e FROM ExistantGisement e " +
             "WHERE NOT EXISTS (SELECT g FROM GisementArticle g WHERE g.gisement = e) AND (:local IS NULL OR e.local = :local)")
     public List<ExistantGisement> getNeverUsed(Local local);
+
+    @Query("SELECT e FROM ExistantGisement e where e.local = :local AND e.trave = :trave AND e.alveole = :alveole AND e.etagere = :etagere AND e.bac = :bac ")
+    public ExistantGisement getByAll(Local local,String trave,String alveole,String etagere,String bac);
 }

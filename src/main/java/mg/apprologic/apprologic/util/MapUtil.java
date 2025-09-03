@@ -1,5 +1,6 @@
 package mg.apprologic.apprologic.util;
 
+import mg.apprologic.apprologic.model.article.Article;
 import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.model.fournisseur.Fournisseur;
 
@@ -23,6 +24,12 @@ public class MapUtil {
             {
                 Consommateur consommateur = (Consommateur) key;
                 toReturn.put(consommateur.getDescription(),entry.getValue());
+            }
+            else if (key instanceof Article)
+            {
+                Article article = (Article) key;
+                toReturn.put(article.getCodeArticle()+"-"+article.getDesignation(),entry.getValue());
+
             }
         }
         return toReturn;

@@ -32,6 +32,11 @@ public class Article {
     @JoinColumn(name = "id_famille", nullable = false)
     private Famille famille;
 
+    @ManyToOne(optional = false,fetch = FetchType.EAGER)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JoinColumn(name = "id_centre", nullable = false)
+    private CentreBudgetaire centreBudgetaire;
+
     @Transient
     static Integer defaultDelayDemand = 5;
 
@@ -39,7 +44,14 @@ public class Article {
     private Double prixPondere;
 
 
+    @JsonProperty("centreBudgetaire")
+    public CentreBudgetaire getCentreBudgetaire() {
+        return centreBudgetaire;
+    }
 
+    public void setCentreBudgetaire(CentreBudgetaire centreBudgetaire) {
+        this.centreBudgetaire = centreBudgetaire;
+    }
 
     public static Integer getDefaultDelayDemand() {
         return defaultDelayDemand;

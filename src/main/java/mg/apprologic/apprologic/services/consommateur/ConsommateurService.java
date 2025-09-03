@@ -13,6 +13,11 @@ public class ConsommateurService {
     @Autowired
     ConsommateurRepository consommateurRepository;
 
+
+    public void save(Consommateur con)
+    {
+        consommateurRepository.save(con);
+    }
     public List<Consommateur> getAllMere()
     {
         return consommateurRepository.findConsommateurByMereIsNull();

@@ -3,6 +3,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "consommateur")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -23,7 +25,20 @@ public class Consommateur {
     @JoinColumn(name = "id_mere", referencedColumnName = "id_consommateur", nullable = true)
     private Consommateur mere; // Nullable autorisé
 
+    @Transient
+    private List<Consommateur> enfants;
+
     // Getters et Setters
+
+
+    @JsonProperty("enfants")
+    public List<Consommateur> getEnfants() {
+        return enfants;
+    }
+
+    public void setEnfants(List<Consommateur> enfants) {
+        this.enfants = enfants;
+    }
 
     @JsonProperty("idConsommateur")
     public Integer getIdConsommateur() {

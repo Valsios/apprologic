@@ -35,7 +35,7 @@
                           method="post">
 
                         <div class="mb-3">
-                            <label for="local" class="form-label">Local</label>
+                            <label for="local" class="form-label">Local<span class="text-danger">*</span></label>
                             <select class="form-select" id="local" th:field="*{local.idLocal}" required>
                                 <option value="">Sélectionner un Local</option>
                                 <option th:each="local : ${local_list}"
@@ -45,26 +45,34 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="trave" class="form-label">Trave</label>
+                            <label for="trave" class="form-label">Trave<span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="trave"
-                                   th:field="*{trave}" required>
+                                   th:field="*{trave}"
+                                   placeholder="Travé (1,2,...)"
+                                   required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="alveole" class="form-label">Alvéole</label>
+                            <label for="alveole" class="form-label">Alvéole<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="alveole"
-                                   th:field="*{alveole}" required>
+                                   th:field="*{alveole}"
+                                   placeholder="Alvéole (A,B,...)"
+                                   required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="etagere" class="form-label">Etagère</label>
+                            <label for="etagere" class="form-label">Etagère<span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="etagere"
-                                   th:field="*{etagere}" required>
+                                   th:field="*{etagere}"
+                                   placeholder="Etgaère (1,2,...)"
+                                   required>
                         </div>
                         <div class="mb-3">
-                            <label for="bac" class="form-label">Bac</label>
+                            <label for="bac" class="form-label">Bac<span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="bac"
-                                   th:field="*{bac}" required>
+                                   th:field="*{bac}"
+                                   placeholder="Bac (1,2,...)"
+                                   required>
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">

@@ -166,8 +166,15 @@
                 </div>
             </div>
             <div id="historyTable" class="card mt-4" style="display: none;">
-                <div class="card-header bg-light">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Historique détaillé des mouvements de stock</h5>
+                    <form method="post" th:action="@{/documents/exportStockAnnuel}">
+                        <input name="currentYear" th:value="${currentYear}" hidden>
+                        <input name="idArticle" th:value="${article.idArticle}" hidden>
+                        <button class="btn btn-success" type="submit">
+                            <i class="fas fa-file-excel"></i> Exporter CSV
+                        </button>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -177,6 +184,7 @@
                                 <th class="text-center" >Date</th>
                                 <th class="text-center" >Entrée</th>
                                 <th class="text-center" >Sortie</th>
+                                <th class="text-center" >Unité demandeur / Fournisseur</th>
                                 <th class="text-center" >Action</th>
                             </tr>
                             </thead>
@@ -185,6 +193,8 @@
                                 <td class="text-center" th:text="${#temporals.format(mouvement.stockMere.dateMouvement, 'dd/MM/yyyy HH:mm')}" style="width: 15%"></td>
                                 <td class="text-center" th:text="${mouvement.entree}"></td>
                                 <td class="text-center" th:text="${mouvement.sortie}"></td>
+                                <td th:if="${mouvement.stockMere.demandeMere != null}" class="text-center" th:text="${mouvement.stockMere.demandeMere.consommateur.description}"></td>
+                                <td th:if="${mouvement.stockMere.bonLivraisonMere != null}" class="text-center" th:text="${mouvement.stockMere.bonLivraisonMere.fournisseur.nom}"></td>
                                 <td class="text-center" >
                                     <button class="btn btn-action"
                                             title="Afficher pièce jointe"

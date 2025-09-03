@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
+
     public Article getByIdArticle(Integer id);
 
     public List<Article> getArticleByDesignationContainingIgnoreCase(String designation);

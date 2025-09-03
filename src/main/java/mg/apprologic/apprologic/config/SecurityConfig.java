@@ -14,8 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +41,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/user/loginPage") // Doit matcher le @GetMapping
                         .loginProcessingUrl("/login") // URL de traitement par défaut de Spring Security
-                        .defaultSuccessUrl("/article/liste", true) // 'true' pour toujours rediriger
+                        .defaultSuccessUrl("/analyse/dashboard", true) // 'true' pour toujours rediriger
                         .failureUrl("/user/loginPage?error=true") // Ajout du paramètre d'erreur
                 )
                 .logout(logout -> logout
@@ -48,6 +53,8 @@ public class SecurityConfig {
 
                 ).headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+                ).exceptionHandling(exception -> exception
+                        .accessDeniedPage("/error?access_denied=true")
                 );
 
         return http.build();
@@ -71,4 +78,6 @@ public class SecurityConfig {
             connector.setMaxPostSize(-1); // -1 = no limit
         });
     }
+
+
 }

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Dashboard Article</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+        }
+
+        body {
+            background-color: #f5f7f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        .chart-container-large {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .expense-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .delivery-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .percentage-display {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 992px) {
+            .expense-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .delivery-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div class="container py-4">
+            <div class="dashboard-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1><i class="bi bi-bar-chart-fill me-3"></i>Dashboard Global</h1>
+                        <p class="mb-0">Analyse et statistiques des demandes et livraisons</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                            <span class="badge bg-light text-dark fs-6">
+                                <i class="bi bi-calendar me-1"></i> Année: <span th:text="${currentYear}"></span>
+                            </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtres -->
+            <div class="filter-section">
+                <h5 class="card-title mb-3"><i class="bi bi-funnel me-2"></i>Filtres d'analyse</h5>
+                <form class="row g-3 align-items-end" method="post" th:action="@{/analyse/filtrer}">
+                    <div class="col-md-6">
+                        <label for="annee" class="form-label">Sélectionner l'année d'analyse</label>
+                        <select class="form-select" id="annee" name="year">
+                            <option th:each="year : ${availableYears}"
+                                    th:value="${year}"
+                                    th:text="${year}"
+                                    th:selected="${year == currentYear}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-filter me-1"></i> Appliquer
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="chart-grid mb-4">
+                <!-- Carte: Évolution mensuelle du stock -->
+                <div class="card stat-card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Suivi mensuel des sorties (valeur MGA)</h5>
+                        </div>
+                        <span class="consumption-badge">Valeur des sorties materiels</span>
+                        <div class="chart-container">
+                            <canvas id="monthlyDepenseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Ligne avec demande totale et consommation par département -->
+            <div class="delivery-row">
+                <!-- Carte des demandes totales -->
+                <div class="stat-card p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-cart-check"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="card-subtitle text-muted">Demandes total</h6>
+                            <h3 class="fw-bold mb-0" th:text="${chiffreAboutDemande.get('demande')}"></h3>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+            <span class="badge bg-success bg-opacity-10 text-success">
+                <i class="bi bi-graph-up me-1"></i>Taux de satisfaction (QTE) : <span th:text="${#numbers.formatDecimal(chiffreAboutDemande.get('tauxSatisfaction'),1,2,'POINT')}"></span>%
+            </span>
+                    </div>
+
+                    <!-- Légendes placées en bas de la carte -->
+                    <div class="legend mt-4 pt-3 border-top">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="legend-color rounded-circle me-2" style="background-color: #3498db; width: 12px; height: 12px;"></div>
+                                    <small>Sorties: <span class="fw-bold" th:text="${chiffreAboutDemande.get('sortie')}"></span></small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <div class="legend-color rounded-circle me-2" style="background-color: #2ecc71; width: 12px; height: 12px;"></div>
+                                    <small>Non Sorties: <span class="fw-bold" th:text="${chiffreAboutDemande.get('nonSortie')}"></span></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique de consommation par département -->
+                <div class="stat-card p-4">
+                    <h5 class="card-title mb-4">Consommation par département</h5>
+                    <div class="chart-container-large">
+                        <canvas id="departementBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Ligne avec nombre de livraisons et consommation par fournisseur -->
+            <div class="delivery-row">
+                <!-- Carte du nombre de livraisons -->
+                <div class="stat-card p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="card-subtitle text-muted">Livraisons</h6>
+                            <h3 class="fw-bold mb-0" th:text="${countLivraison}"></h3>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                           <i class="bi bi-graph-up me-1"></i>Total par les fournisseurs
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Livraisons satifaites (QTE) </span>
+                            <span><span class="fw-bold" th:text="${#numbers.formatDecimal(satisfactionTotal.get('satisfait'),1,2,'POINT')}"></span>%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div id="satisfied-bar" class="progress-bar bg-success" role="progressbar"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Non satisfaites</span>
+                            <span><span class="fw-bold" th:text="${#numbers.formatDecimal(satisfactionTotal.get('nonSatisfait'),1,2,'POINT')}"></span>%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div id="unsatisfied-bar" class="progress-bar bg-warning" role="progressbar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique de consommation par fournisseur -->
+                <div class="stat-card p-4">
+                    <h5 class="card-title mb-4">Satisfaction fournisseur</h5>
+                    <div class="chart-container">
+                        <canvas id="fournisseurChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{include/footer :: footer}"></div>
+<script th:src="@{/assets/js/Chart.js}"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+
+
+        // Fonction pour animer les barres de progression
+        function animateProgressBars() {
+            // Récupérer les valeurs depuis Thymeleaf
+            const satisfiedValue = [[${satisfactionTotal.get('satisfait')}]];
+            const unsatisfiedValue = [[${satisfactionTotal.get('nonSatisfait')}]];
+
+            // Sélectionner les éléments de barre de progression
+            const satisfiedBar = document.querySelector('.progress-bar.bg-success');
+            const unsatisfiedBar = document.querySelector('.progress-bar.bg-warning');
+
+            // Animer les barres après un court délai
+            setTimeout(function() {
+                satisfiedBar.style.width = satisfiedValue + '%';
+                unsatisfiedBar.style.width = unsatisfiedValue + '%';
+            }, 300);
+        }
+
+        // Lancer l'animation au chargement de la page
+        animateProgressBars();
+        // Graphique en barres verticales pour la consommation par département
+        const departementBarCtx = document.getElementById('departementBarChart').getContext('2d');
+        const departements = [[${consommationParDepartement.keySet()}]];
+        console.log(departements)
+        const consommation = [[${consommationParDepartement.values()}]];
+        const departementBarChart = new Chart(departementBarCtx, {
+            type: 'bar',
+            data: {
+                labels: departements,
+                datasets: [{
+                    label: 'Consommation (MGA)',
+                    data: Array.from(consommation),
+                    backgroundColor: '#3498db',
+                    borderWidth: 0,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            drawBorder: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Montant (MGA)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Satisfaction par fournisseur (Horizontal Bar)
+        const fournisseurCtx = document.getElementById('fournisseurChart').getContext('2d');
+        const fournisseurs = [[${satisfactionParFournisseur.keySet()}]];
+        console.log(fournisseurs);
+        const taux = [[${satisfactionParFournisseur.values()}]];
+        console.log(taux)
+
+        const fournisseurChart = new Chart(fournisseurCtx, {
+            type: 'bar',
+            data: {
+                labels: fournisseurs,
+                datasets: [{
+                    label: 'Taux de satisfaction',
+                    data: taux,
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(46, 204, 113, 1)',
+                    borderWidth: 0,
+                    borderRadius: 5,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Taux de satisfaction (%)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+    // Graphique d'évolution mensuelle du stock
+    const ctxStock = document.getElementById('monthlyDepenseChart').getContext('2d');
+    const mois = [[${evolutionDepense.keySet()}]];
+    const quantites = [[${evolutionDepense.values()}]];
+    const nomsMois = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const moisLabels = mois.map(numero => {
+        // S'assurer que le numéro est dans la plage valide (1-12)
+        const index = Math.max(0, Math.min(11, parseInt(numero) - 1));
+        return nomsMois[index];
+    });
+
+
+    const stockChart = new Chart(ctxStock, {
+        type: 'line',
+        data: {
+            labels: moisLabels,
+            datasets: [{
+                label: 'Valeur sortie mensuelle',
+                data: quantites,
+                backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                borderColor: 'rgba(155, 89, 182, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(155, 89, 182, 1)',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Valeur: ${context.raw} MGA`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Valeur'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Mois'
+                    }
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

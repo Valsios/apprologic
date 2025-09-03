@@ -1,8 +1,10 @@
 package mg.apprologic.apprologic.controller.bons;
 
 import jakarta.servlet.http.HttpServletRequest;
-import mg.apprologic.apprologic.model.article.Article;
+import jakarta.servlet.http.HttpServletResponse;
+
 import mg.apprologic.apprologic.model.bons.*;
+
 import mg.apprologic.apprologic.model.stock.StockFille;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.services.article.ArticleService;
@@ -14,30 +16,26 @@ import mg.apprologic.apprologic.services.local.GisementStockFilleService;
 import mg.apprologic.apprologic.services.stock.StockFilleService;
 import mg.apprologic.apprologic.services.stock.StockMereService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
+
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Date;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,9 +68,17 @@ public class BonLivraisonController {
     GisementStockFilleService gisementStockFilleService;
 
 
+    @PostMapping("/filtrer")
+    public String filtrer(Model model,@RequestParam(required = false) String idFournisseur,@RequestParam(required = false) String debut,@RequestParam(required = false) String fin)
+    {
+        model.addAttribute("fournisseur_liste",fournisseurService.getAll());
+        model.addAttribute("livraison_liste",bonLivraisonMereService.getByFournisseurDate(idFournisseur,debut,fin));
+        return "bons/BonLivraisonListe";
+    }
     @GetMapping("/liste")
     public String getListeBl(Model model)
     {
+        model.addAttribute("fournisseur_liste",fournisseurService.getAll());
         model.addAttribute("livraison_liste",bonLivraisonMereService.getAll());
         return "bons/BonLivraisonListe";
     }
@@ -126,13 +132,17 @@ public class BonLivraisonController {
             ));
         }
     }
+
+
     @PostMapping("/save")
     @Transactional
     public String saveBl(
-                         @ModelAttribute("bonLivrason") BonLivraisonMere bonLivraisonMere
-                        ,HttpServletRequest request, RedirectAttributes redirectAttributes)
+            @ModelAttribute("bonLivrason") BonLivraisonMere bonLivraisonMere
+                        , HttpServletRequest request, RedirectAttributes redirectAttributes, HttpServletResponse response)
     {
 
+        StringBuilder repartitionString = new StringBuilder();
+        StringBuilder builderErrorRepartition = new StringBuilder();
         List<BonLivraisonFille> bonLivraisonFilleList = new ArrayList<>();
         try {
 
@@ -141,7 +151,7 @@ public class BonLivraisonController {
             processLignesLivraison(request,bonLivraisonMere,bonLivraisonFilleList);
 
             //process gisement
-            processGisement(bonLivraisonFilleList);
+            processGisement(bonLivraisonFilleList,repartitionString,builderErrorRepartition);
 
             //process stock
             StockMere stockMere = new StockMere();
@@ -152,11 +162,22 @@ public class BonLivraisonController {
             stockMereService.save(stockMere);
             processStock(stockMere,bonLivraisonFilleList);
 
-            redirectAttributes.addFlashAttribute("success","Livraison succes.");
+            // Ajouter la répartition aux flash attributes
+            String fileName = "repartitionBL_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
+            String csvContent = "Article;Gisement;quantité\n" + repartitionString.toString().replace(" ","_");
+
+            redirectAttributes.addFlashAttribute("csvContent", csvContent);
+            redirectAttributes.addFlashAttribute("csvFileName", fileName);
+            redirectAttributes.addFlashAttribute("showDownload", true);
+            redirectAttributes.addFlashAttribute("success", "Livraison réussie.");
+            if (!builderErrorRepartition.isEmpty())
+            {
+                redirectAttributes.addFlashAttribute("warning", builderErrorRepartition.toString());
+            }
+
         }
         catch (Exception e)
         {
-
                 for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
                 {
                     bonLivraisonFilleService.delete(bonLivraisonFille);
@@ -195,11 +216,11 @@ public class BonLivraisonController {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processGisement(List<BonLivraisonFille> bonLivraisonFilleList)throws Exception
+    public void processGisement(List<BonLivraisonFille> bonLivraisonFilleList,StringBuilder repartitionString,StringBuilder errorRepartition)
     {
         for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
         {
-            gisementStockFilleService.firstInBonLivraison(bonLivraisonFille);
+            gisementStockFilleService.firstInBonLivraison(bonLivraisonFille,repartitionString,errorRepartition);
         }
     }
 

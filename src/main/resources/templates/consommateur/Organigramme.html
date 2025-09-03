@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASECNA - Organigramme Consommateurs</title>
+    <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+    <!-- CSS locaux -->
+    <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+    <link rel="stylesheet" th:href="@{/assets/css/dropdown.css}">
+
+    <style>
+        .org-container {
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: calc(100vh - 150px);
+        }
+
+        .org-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .node {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            margin: 10px;
+            min-width: 200px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .mother-node {
+            background-color: #e3f2fd;
+            border-left: 4px solid #1976d2;
+        }
+
+        .daughter-node {
+            background-color: #f1f8e9;
+            border-left: 4px solid #689f38;
+        }
+
+        .node-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .node-details {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .connector {
+            position: relative;
+            width: 2px;
+            height: 20px;
+            background-color: #ccc;
+            margin: 0 auto;
+        }
+
+        .horizontal-connectors {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .horizontal-line {
+            flex-grow: 1;
+            height: 2px;
+            background-color: #ccc;
+            margin: 0 10px;
+        }
+
+        .level-title {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .level {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .horizontal-connectors {
+                display: none;
+            }
+
+            .connector {
+                height: 20px;
+                width: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+    <div th:replace="~{include/sidebar :: sidebar}"></div>
+    <div class="main-content">
+        <div class="org-container">
+            <div class="org-header">
+                <h2>Organigramme des Services</h2>
+                <p class="text-muted">Structure hiérarchique des services (niveaux mère et fille)</p>
+            </div>
+
+            <div class="org-chart" th:if="${consommateurList != null and !consommateurList.isEmpty()}">
+                <!-- Niveau des consommateurs mères -->
+                <div class="level">
+                    <div class="level-title">Services Mères</div>
+                    <div th:each="consommateurMere : ${consommateurList}" class="node mother-node">
+                        <div class="node-details" th:text="'Rang : ' + ${consommateurMere.rang}">Rang : chargé</div>
+                        <div class="node-title" th:text="${consommateurMere.description}">Nom du service</div>
+                        <div class="node-details" th:text="${consommateurMere.enfants.size()} + ' unité(s) fille(s)'">5 unités filles</div>
+
+                        <!-- Boutons en bas de chaque bloc -->
+                        <div class="d-flex justify-content-center mt-3 gap-2">
+                            <!-- Formulaire pour Modifier -->
+                            <form th:action="@{/consommateur/edit}" method="post" class="d-inline">
+                                <input type="hidden" name="idConsommateur" th:value="${consommateurMere.idConsommateur}">
+                                <button type="submit" class="btn btn-action edit" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
+
+                            <!-- Formulaire pour Voir détails -->
+                            <form th:action="@{/consommateur/consommations}" method="post" class="d-inline">
+                                <input type="hidden" name="idConsommateur" th:value="${consommateurMere.idConsommateur}">
+                                <button type="submit" class="btn btn-action edit" title="Voir détails">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connecteurs -->
+                <div class="horizontal-connectors">
+                    <div class="horizontal-line"></div>
+                </div>
+                <div class="connector"></div>
+
+                <!-- Niveau des consommateurs filles -->
+                <div class="level">
+                    <div class="level-title">Unités Filles</div>
+                    <th:block th:each="consommateurMere : ${consommateurList}">
+                        <div th:each="consommateurFille : ${consommateurMere.enfants}" class="node daughter-node">
+                            <div class="node-details" th:text="'Rang : ' + ${consommateurFille.rang}">Rang : unité</div>
+                            <div class="node-title" th:text="${consommateurFille.description}">Nom du service</div>
+                            <div class="node-details" th:text="'Parent: ' + ${consommateurMere.description}">Parent: CM-001</div>
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-center mt-3 gap-2">
+                                <!-- Formulaire pour Modifier -->
+                                <form th:action="@{/consommateur/edit}" method="post" class="d-inline">
+                                    <input type="hidden" name="idConsommateur" th:value="${consommateurFille.idConsommateur}">
+                                    <button type="submit" class="btn btn-action edit" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Formulaire pour Voir détails -->
+                                <form th:action="@{/consommateur/consommations}" method="post" class="d-inline">
+                                    <input type="hidden" name="idConsommateur" th:value="${consommateurFille.idConsommateur}">
+                                    <button type="submit" class="btn btn-action edit" title="Voir détails">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
+            <div th:if="${consommateurList == null or consommateurList.isEmpty()}" class="no-data">
+                <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">Aucun service trouvé</h4>
+                <p>Il n'y a actuellement aucun service à afficher dans l'organigramme.</p>
+            </div>
+        </div>
+        <hr>
+        <div class="tab-content" id="formTabsContent">
+            <!-- Formulaire Simple -->
+            <div class="tab-pane fade show active" id="simpleFormTab" role="tabpanel">
+                <div class="form-section">
+                    <h2 th:if="${new_consommateur.idConsommateur == null}" class="form-title">
+                        <i class="bi bi-box-seam me-2"></i>Nouveau Service
+                    </h2>
+                    <h2 th:if="${new_consommateur.idConsommateur != null}" class="form-title">
+                        <i class="bi bi-box-seam me-2"></i>Modifier Service
+                    </h2>
+
+                    <form th:action="@{/consommateur/save}"
+                          th:object="${new_consommateur}"
+                          method="post">
+                        <input th:if="${new_consommateur.idConsommateur != null}" th:field="*{idConsommateur}" hidden>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="description"
+                                   placeholder="Description"
+                                   th:field="*{description}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rang" class="form-label">Rang<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="rang"
+                                   placeholder="Description"
+                                   th:field="*{rang}" required>
+                        </div>
+
+                        <label for="consommateurMere" class="form-label">Service Mère<span class="text-danger">(optionnal)</span></label>
+                        <div class="mb-3" th:if="${new_consommateur.idConsommateur == null}">
+                            <select class="form-select" id="consommateurMere" name="consommateurMereId">
+                                <option value="">Aucun (service indépendant)</option>
+                                <option th:each="consommateurMere : ${consommateurList}"
+                                        th:value="${consommateurMere.idConsommateur}"
+                                        th:text="${consommateurMere.description}">
+                                    Consommateur mère
+                                </option>
+                            </select>
+                        </div>
+                        <input th:if="${new_consommateur.idConsommateur != null && new_consommateur.mere != null}" name="consommateurMereId" th:value="${new_consommateur.mere.idConsommateur}" hidden>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Soumettre</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{include/footer :: footer}"></div>
+</body>
+</html>

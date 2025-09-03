@@ -47,6 +47,7 @@
                     <th>Désignation</th>
                     <th>Seuil minimum</th>
                     <th>Famille</th>
+                    <th>Centre budgetaire</th>
                     <th>UDM</th>
                     <th>Action</th>
                 </tr>
@@ -57,6 +58,7 @@
                     <td th:text="${article.designation}">Nom de l'article</td>
                     <td th:text="${article.seuilMin}">Seuil</td>
                     <td th:text="${article.famille.description}">Famille</td>
+                    <td th:text="${article.centreBudgetaire.codeCentre}">Centre budgetaire</td>
                     <td th:text="${article.udm.acronyme}">Unité de mésure</td>
                     <td>
                         <div class="btn-group" role="group">

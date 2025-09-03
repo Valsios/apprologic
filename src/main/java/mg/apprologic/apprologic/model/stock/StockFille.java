@@ -142,6 +142,15 @@ public class StockFille {
         this.udm = udm;
     }
 
+    public static String getColumnForArticle()
+    {
+        String toReturn = "";
+        toReturn += "Date Mouvement;";
+        toReturn += "Entrees;";
+        toReturn += "Sorties;";
+        toReturn += "Demandeur/Fournisseur";
+        return toReturn;
+    }
     public static String getColumn()
     {
         String toReturn = "";
@@ -153,6 +162,24 @@ public class StockFille {
         return toReturn;
     }
 
+    public String toStringArticleStock()
+    {
+        String toReturn = "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+        toReturn += this.getStockMere().getDateMouvement().format(formatter).replace("T"," ")+";";
+        toReturn += this.getEntree()+";";
+        toReturn += this.getSortie()+";";
+
+        if (this.getStockMere().getDemandeMere() != null)
+        {
+            toReturn += this.getStockMere().getDemandeMere().getConsommateur().getDescription();
+        }
+        else
+        {
+            toReturn += this.getStockMere().getBonLivraisonMere().getFournisseur().getNom();
+        }
+        return toReturn;
+    }
     public String toStringStock()
     {
         String toReturn = "";

@@ -15,6 +15,11 @@ public class ExistantGisementService {
     ExistantGisementRepository existantGisementRepository;
 
 
+    public ExistantGisement getByAll(Local local,String trave,String alveole,String etagere,String bac)
+    {
+        return existantGisementRepository.getByAll(local,trave,alveole,etagere,bac);
+    }
+
     public List<ExistantGisement> getNeverUsed(Local local)
     {
         return existantGisementRepository.getNeverUsed(local);

@@ -2,6 +2,7 @@ package mg.apprologic.apprologic.repository.bons;
 
 import mg.apprologic.apprologic.model.article.Article;
 import mg.apprologic.apprologic.model.bons.BonLivraisonFille;
+import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,6 @@ public interface BonLivraisonFilleRepository extends JpaRepository<BonLivraisonF
 
     @Query("SELECT b FROM BonLivraisonFille b WHERE b.article = :article AND year (b.bonLivraisonMere.dateReception) = :year")
     public List<BonLivraisonFille> getBonLivraisonFilleByArticleAndYear(Article article,Integer year);
+
+    public List<BonLivraisonFille> getBonLivraisonFilleByBonLivraisonMere(BonLivraisonMere bonLivraisonMere);
 }

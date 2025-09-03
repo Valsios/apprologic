@@ -34,6 +34,32 @@ public class BordereauFilleService {
     }
 
 
+
+    //consommation des departements
+    public HashMap<Article,Double> consommationDepartementParArticle(Integer year,Consommateur consommateur,Integer month)
+    {
+        if (month != null)
+        {
+            month = month+1;
+        }
+        List<BordereauFille> bordereauFilleList = bordereauFilleRepository.getBordereauFilleByConsommateurAndYearAndMonth(consommateur,year,month);
+        HashMap<Article,Double> toReturn = new HashMap<>();
+        for (BordereauFille bordereauFille : bordereauFilleList)
+        {
+            Article article = bordereauFille.getDemandeFille().getArticle();
+
+            if (toReturn.containsKey(article))
+            {
+                toReturn.put(article,toReturn.get(article)+bordereauFille.getQuantiteSortie());
+            }
+            else
+            {
+                toReturn.put(article,bordereauFille.getQuantiteSortie());
+            }
+        }
+
+        return toReturn;
+    }
     //filtre article and year
 
     public HashMap<String,Double> tauxSatisfactionDemande(List<BordereauFille> bordereauFilleList)
@@ -73,6 +99,7 @@ public class BordereauFilleService {
                 toReturn.put(consommateur,bordereauFille.getQuantiteSortie());
             }
         }
+        System.out.println(toReturn);
         return toReturn;
     }
 

@@ -12,6 +12,11 @@ public class UdmService {
     @Autowired
     UdmRepository udmRepository;
 
+
+    public void save(Udm udm)
+    {
+        udmRepository.save(udm);
+    }
     public List<Udm> getAll()
     {
         return udmRepository.findAll();
@@ -20,6 +25,11 @@ public class UdmService {
     public Udm getById(Integer id)
     {
         return udmRepository.getById(id);
+    }
+
+    public Udm getByAcronyme(String acronyme)
+    {
+        return udmRepository.getUdmByAcronyme(acronyme);
     }
 }
 

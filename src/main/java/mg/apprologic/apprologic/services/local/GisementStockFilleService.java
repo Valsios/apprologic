@@ -126,7 +126,7 @@ public class GisementStockFilleService
             }
         }
     }
-    public void firstOutBordereauFille(BordereauFille bordereauFille)
+    public void firstOutBordereauFille(BordereauFille bordereauFille,StringBuilder repartitionSortie)
     {
         Article article = bordereauFille.getDemandeFille().getArticle();
         List<GisementStockFille> gisementStockFilleList = gisementStockFilleRepository.findGisementStockFilleByArticleOrderByDateMouvementAsc(article);
@@ -146,14 +146,33 @@ public class GisementStockFilleService
                 System.out.println(quantiteSortie);
                 if (quantiteSortie>(gisementStockFille.getQuantite_in()-gisementStockFille.getQuantite_out()))
                 {
+
+
                     double sortie_hors_local = quantiteSortie-(gisementStockFille.getQuantite_in()-gisementStockFille.getQuantite_out());
                     System.out.println(sortie_hors_local);
+                    //string data repartition
+                    repartitionSortie.append(bordereauFille.getDemandeFille().getArticle().getDesignation()+";");
+                    repartitionSortie.append(gisementStockFille.getGisement().toString());
+                    repartitionSortie.append(sortie_hors_local + (gisementStockFille.getQuantite_in()-gisementStockFille.getQuantite_out())+";");
+                    repartitionSortie.append(gisementStockFille.getDateMouvement());
+                    repartitionSortie.append("\n");
+                    // end of
                     gisementStockFille.setSortie_hors_local(gisementStockFille.getSortie_hors_local()+sortie_hors_local);
                     gisementStockFille.setQuantite_out(gisementStockFille.getQuantite_in());
+
+
 
                 }
                 else
                 {
+
+                    //string data repartition
+                    repartitionSortie.append(bordereauFille.getDemandeFille().getArticle().getDesignation()+";");
+                    repartitionSortie.append(gisementStockFille.getGisement().toString());
+                    repartitionSortie.append(quantiteSortie+";");
+                    repartitionSortie.append(gisementStockFille.getDateMouvement());
+                    repartitionSortie.append("\n");
+                    // end of
                     gisementStockFille.setQuantite_out(gisementStockFille.getQuantite_out()+quantiteSortie);
                     gisementStockFille.setSortie_hors_local(0.0);
                 }
@@ -189,7 +208,7 @@ public class GisementStockFilleService
                 }))
                 .collect(Collectors.toList());
     }
-    public void firstInBonLivraison(BonLivraisonFille bonLivraisonFille) throws Exception{
+    public void firstInBonLivraison(BonLivraisonFille bonLivraisonFille,StringBuilder repartitionString,StringBuilder errorRepartition) {
         // 1. Vérifications initiales
         if (bonLivraisonFille == null || bonLivraisonFille.getQuantite_recu() <= 0) {
             throw new IllegalArgumentException("Bon de livraison invalide");
@@ -223,6 +242,14 @@ public class GisementStockFilleService
                 nouveauStock.setHors_local(0.0);
                 nouveauStock.setSortie_hors_local(0.0);
 
+
+                //pour le file de repartition
+                repartitionString.append(bonLivraisonFille.getArticle().getDesignation()+";");
+                repartitionString.append(capacite.getGisement().toString());
+                repartitionString.append(quantiteAjoutee+"\n");
+                System.out.println("repartition : "+repartitionString);
+                //end of
+
                 save(nouveauStock);
                 last = nouveauStock;
                 quantiteRestante -= quantiteAjoutee;
@@ -231,12 +258,39 @@ public class GisementStockFilleService
 
         // 3. Gestion du surplus
         if (quantiteRestante > 0) {
-            last.setHors_local(quantiteRestante);
-            save(last);
-            throw new Exception(String.format(
-                    "%.2f unités de "+bonLivraisonFille.getArticle().getDesignation()+" sont hors local.",
-                    quantiteRestante
-            ));
+
+           if (last == occupations.get(0))
+           {
+               GisementStockFille nouveauStock = new GisementStockFille();
+               nouveauStock.setQuantite_in(0.0);
+               nouveauStock.setQuantite_out(0.0);
+               nouveauStock.setGisement(last.getGisement());
+               nouveauStock.setArticle(bonLivraisonFille.getArticle());
+               nouveauStock.setDateMouvement(bonLivraisonFille.getBonLivraisonMere().getDateReception());
+               nouveauStock.setHors_local(quantiteRestante);
+               nouveauStock.setSortie_hors_local(0.0);
+               save(nouveauStock);
+               errorRepartition.append(String.format(
+                       "%.2f unités de "+bonLivraisonFille.getArticle().getDesignation()+" sont hors local.",
+                       quantiteRestante
+               ));
+           }
+           else
+           {
+               last.setHors_local(quantiteRestante);
+               save(last);
+               errorRepartition.append(String.format(
+                       "%.2f unités de "+bonLivraisonFille.getArticle().getDesignation()+" sont hors local.",
+                       quantiteRestante
+               ));
+           }
+
+            //pour le file de repartition
+            repartitionString.append(bonLivraisonFille.getArticle().getDesignation()+";");
+            repartitionString.append(last.getGisement().toString());
+            repartitionString.append(quantiteRestante+"\n");
+            System.out.println("repartition : "+repartitionString);
+            //end of
         }
     }
     public void save(GisementStockFille gisementStockFille)

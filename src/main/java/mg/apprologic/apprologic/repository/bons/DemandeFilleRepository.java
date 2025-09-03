@@ -11,4 +11,5 @@ import java.util.List;
 public interface DemandeFilleRepository extends JpaRepository<DemandeFille,Integer> {
 
     public List<DemandeFille> getDemandeFilleByDemandeMere(DemandeMere demandeMere);
+
 }

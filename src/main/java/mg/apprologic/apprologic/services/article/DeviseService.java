@@ -22,4 +22,9 @@ public class DeviseService {
     {
         return deviseRepository.getById(id);
     }
+
+    public void save(Devise devise)
+    {
+        deviseRepository.save(devise);
+    }
 }

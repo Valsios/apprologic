@@ -41,7 +41,7 @@ public class ArticleService {
         List<BonLivraisonFille> bonLivraisonFilleList = bonLivraisonFilleService.getLivraisonByArticle(article);
         for (BonLivraisonFille bon: bonLivraisonFilleList)
         {
-            result += bon.getPrixUnitaire()*bon.getQuantite_recu();
+            result += bon.getPrixUnitaire()*bon.getQuantite_recu()*bon.getBonLivraisonMere().getDevise().getCoursAriary();
             quantité += bon.getQuantite_recu();
         }
         return result/quantité;
