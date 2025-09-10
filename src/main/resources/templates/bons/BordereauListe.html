@@ -50,7 +50,8 @@
                                     <option value="" selected disabled>Sélectionnez un service</option>
                                     <option th:each="consommateur : ${consommateur_liste}"
                                             th:value="${consommateur.idConsommateur}"
-                                            th:text="${consommateur.description}">
+                                            th:text="${consommateur.description}"
+                                            th:selected="${consommateurId != null && consommateurId == consommateur.idConsommateur}">
                                     </option>
                                 </select>
                             </div>
@@ -66,13 +67,13 @@
                             <!-- Date Début -->
                             <div class="col-md-2">
                                 <label for="dateDebut" class="form-label">Date Début</label>
-                                <input type="date" class="form-control" id="dateDebut" name="debut">
+                                <input type="datetime-local" class="form-control" id="dateDebut" th:value="${#temporals.format(debut,'yyyy-MM-dd''T''HH:mm')}" name="debut" >
                             </div>
 
                             <!-- Date Fin -->
                             <div class="col-md-2">
                                 <label for="dateFin" class="form-label">Date Fin</label>
-                                <input type="date" class="form-control" id="dateFin" name="fin">
+                                <input type="datetime-local" class="form-control" id="dateFin" th:value="${#temporals.format(fin,'yyyy-MM-dd''T''HH:mm')}" name="fin" >
                             </div>
 
                             <!-- Boutons -->

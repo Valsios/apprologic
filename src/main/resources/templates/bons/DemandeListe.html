@@ -56,7 +56,9 @@
                 <option value="" selected disabled>Sélectionnez un service</option>
                 <option th:each="consommateur : ${consommateur_liste}"
                         th:value="${consommateur.idConsommateur}"
-                        th:text="${consommateur.description}">
+                        th:text="${consommateur.description}"
+                        th:selected="${consommateurId != null && consommateurId == consommateur.idConsommateur}"
+                >
                 </option>
               </select>
             </div>

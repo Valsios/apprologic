@@ -32,33 +32,33 @@
                           th:object="${utilisateur}"
                           method="post">
                         <div class="mb-3">
-                            <label for="nom" class="form-label">Nom</label>
+                            <label for="nom" class="form-label">Nom<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="nom"
-                                   th:field="*{nom}" required>
+                                   th:field="*{nom}" required placeholder="RANDRIAMALALA">
                         </div>
 
                         <div class="mb-3">
-                            <label for="prenom" class="form-label">Prenom</label>
+                            <label for="prenom" class="form-label">Prenom<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="prenom"
-                                   th:field="*{prenom}" required>
+                                   th:field="*{prenom}" required placeholder="Valisoa">
                         </div>
 
                         <div class="mb-3">
-                            <label for="mail" class="form-label">Mail</label>
+                            <label for="mail" class="form-label">Mail<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="mail"
-                                   th:field="*{login}" required>
+                                   th:field="*{login}" required placeholder="Valisoa@hotmail.com">
                         </div>
 
                         <div class="mb-3">
-                            <label for="contact" class="form-label">Contact</label>
+                            <label for="contact" class="form-label">Contact<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="contact"
-                                   th:field="*{contact}" required>
+                                   th:field="*{contact}" required placeholder="0327191379">
                         </div>
 
                         <div class="mb-3">
-                            <label for="mdp" class="form-label">Mot de passe</label>
+                            <label for="mdp" class="form-label">Mot de passe<span class="text-danger">*</span></label>
                             <input type="password" class="form-control" id="mdp"
-                                   th:field="*{mdp}" required>
+                                   th:field="*{mdp}" required placeholder="Mot de passe">
                         </div>
 
 

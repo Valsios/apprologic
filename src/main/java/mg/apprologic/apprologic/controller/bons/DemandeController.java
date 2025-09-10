@@ -62,6 +62,7 @@ public class DemandeController {
             {
                 idToFind = Integer.valueOf(idConsommateurFille);
             }
+            model.addAttribute("consommateurId",idToFind);
             toReturn = demandeMereService.getByConsommateur(consommateurService.getById(idToFind));
         }
 

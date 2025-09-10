@@ -71,6 +71,14 @@ public class BonLivraisonController {
     @PostMapping("/filtrer")
     public String filtrer(Model model,@RequestParam(required = false) String idFournisseur,@RequestParam(required = false) String debut,@RequestParam(required = false) String fin)
     {
+
+        if (idFournisseur != null && !idFournisseur.isEmpty())
+        {
+            model.addAttribute("fournisseurId",Integer.parseInt(idFournisseur));
+        }
+
+        model.addAttribute("debut",LocalDateTime.parse(debut));
+        model.addAttribute("fin",LocalDateTime.parse(fin));
         model.addAttribute("fournisseur_liste",fournisseurService.getAll());
         model.addAttribute("livraison_liste",bonLivraisonMereService.getByFournisseurDate(idFournisseur,debut,fin));
         return "bons/BonLivraisonListe";
@@ -78,8 +86,12 @@ public class BonLivraisonController {
     @GetMapping("/liste")
     public String getListeBl(Model model)
     {
+        LocalDateTime debut = LocalDateTime.now().minusMonths(1);
+        LocalDateTime fin = LocalDateTime.now();
+        model.addAttribute("debut",debut);
+        model.addAttribute("fin",fin);
         model.addAttribute("fournisseur_liste",fournisseurService.getAll());
-        model.addAttribute("livraison_liste",bonLivraisonMereService.getAll());
+        model.addAttribute("livraison_liste",bonLivraisonMereService.getByFournisseurDate(null,debut.toString(),fin.toString()));
         return "bons/BonLivraisonListe";
     }
     @GetMapping("/formulaire")

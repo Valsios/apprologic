@@ -83,7 +83,10 @@ public class BordereauController {
             {
                final_id = idConsommateurFille;
             }
+            model.addAttribute("consommateurId",Integer.parseInt(final_id));
         }
+        model.addAttribute("debut",LocalDateTime.parse(debut));
+        model.addAttribute("fin",LocalDateTime.parse(fin));
         toReturn = bordereauMereService.getByConsommateurDate(idConsommateur,debut,fin);
 
         model.addAttribute("consommateur_liste",consommateurService.getAllMere());
@@ -94,8 +97,12 @@ public class BordereauController {
     @GetMapping("/liste")
     public String getListeBordereau(Model model)
     {
+        LocalDateTime debut = LocalDateTime.now().minusMonths(1);
+        LocalDateTime fin = LocalDateTime.now();
+        model.addAttribute("debut",debut);
+        model.addAttribute("fin",fin);
         model.addAttribute("consommateur_liste",consommateurService.getAllMere());
-        model.addAttribute("bordereau_liste",bordereauMereService.getAll());
+        model.addAttribute("bordereau_liste",bordereauMereService.getByConsommateurDate(null,debut.toString(),fin.toString()));
         return "bons/BordereauListe";
     }
     @PostMapping("/save")
