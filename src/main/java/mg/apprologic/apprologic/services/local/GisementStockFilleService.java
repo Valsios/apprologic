@@ -155,7 +155,7 @@ public class GisementStockFilleService
                     repartitionSortie.append(gisementStockFille.getGisement().toString());
                     repartitionSortie.append(sortie_hors_local + (gisementStockFille.getQuantite_in()-gisementStockFille.getQuantite_out())+";");
                     repartitionSortie.append(gisementStockFille.getDateMouvement());
-                    repartitionSortie.append("\n");
+                    repartitionSortie.append(";");
                     // end of
                     gisementStockFille.setSortie_hors_local(gisementStockFille.getSortie_hors_local()+sortie_hors_local);
                     gisementStockFille.setQuantite_out(gisementStockFille.getQuantite_in());
@@ -171,11 +171,12 @@ public class GisementStockFilleService
                     repartitionSortie.append(gisementStockFille.getGisement().toString());
                     repartitionSortie.append(quantiteSortie+";");
                     repartitionSortie.append(gisementStockFille.getDateMouvement());
-                    repartitionSortie.append("\n");
+                    repartitionSortie.append(";");
                     // end of
                     gisementStockFille.setQuantite_out(gisementStockFille.getQuantite_out()+quantiteSortie);
                     gisementStockFille.setSortie_hors_local(0.0);
                 }
+                repartitionSortie.append(capacite.getArticle().getUdm().getAcronyme()+"\n");
                 gisementStockFilleRepository.save(gisementStockFille);
                 quantiteRestante -= quantiteSortie;
             }
@@ -246,7 +247,8 @@ public class GisementStockFilleService
                 //pour le file de repartition
                 repartitionString.append(bonLivraisonFille.getArticle().getDesignation()+";");
                 repartitionString.append(capacite.getGisement().toString());
-                repartitionString.append(quantiteAjoutee+"\n");
+                repartitionString.append(quantiteAjoutee+";");
+                repartitionString.append(bonLivraisonFille.getArticle().getUdm().getAcronyme()+"\n");
                 System.out.println("repartition : "+repartitionString);
                 //end of
 

@@ -46,7 +46,7 @@
                             <!-- Filtre Local -->
                             <div class="col-md-3">
                                 <label for="consommateur" class="form-label">Service</label>
-                                <select class="form-select" id="consommateur" name="idConsommateur" required>
+                                <select class="form-select" id="consommateur" name="idConsommateur">
                                     <option value="" selected disabled>Sélectionnez un service</option>
                                     <option th:each="consommateur : ${consommateur_liste}"
                                             th:value="${consommateur.idConsommateur}"

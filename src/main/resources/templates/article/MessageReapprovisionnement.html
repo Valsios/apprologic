@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASECNA - Approvisionnement et Achat</title>
+  <link th:href="@{/assets/css/bootstrap.min.css}" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/assets/icon-font/bootstrap-icons.css}">
+
+  <!-- CSS locaux -->
+  <link rel="stylesheet" th:href="@{/assets/css/dataTables.min.css}">
+  <link rel="stylesheet" th:href="@{/assets/css/includeCss.css}">
+  <link rel="stylesheet" th:href="@{/assets/css/form.css}">
+</head>
+<body>
+<div th:replace="~{include/navbar :: navbar}"></div>
+
+<!-- Wrapper: sidebar + content -->
+<div class="wrapper">
+
+  <div th:replace="~{include/sidebar :: sidebar}"></div>
+
+  <div class="main-content">
+    <div class="table-responsive shadow rounded bg-light p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-black-50 mb-3">Réapprovisionnement alerté</h3>
+      </div>
+      <!-- Section de description du calcul de prévision -->
+      <div class="alert alert-info mb-4">
+        <h6 class="alert-heading mb-2">📊 Méthodologie de Calcul des Prévisions</h6>
+        <p class="mb-1">Les recommandations de réapprovisionnement sont générées automatiquement selon l'algorithme suivant :</p>
+        <ul class="mb-1">
+          <li><strong>Prévision journalière</strong> : Calculée par lissage exponentiel (alpha = 0.3) sur les 6 derniers mois</li>
+          <li><strong>Stock de sécurité</strong> : Déterminé statistiquement (niveau de service 95%) avec filtrage des valeurs aberrantes</li>
+          <li><strong>Point de commande (ROP)</strong> = (Consommation journalière × Délai) + Stock de sécurité</li>
+          <li><strong>Quantité recommandée</strong> = ROP - Stock actuel</li>
+        </ul>
+        <small class="text-muted">Système actualisé quotidiennement à 9h00</small>
+      </div>
+
+
+      <table id="article-table" class="table table-striped table-hover table-bordered">
+        <thead class="table-light">
+        <tr>
+          <th>Article</th>
+          <th>Quantité Recommandée</th>
+          <th>UDM</th>
+          <th>Date Alerte</th>
+          <th>Delai de demande(j)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="alerte : ${liste_alerte}">
+          <td th:text="${alerte.article.codeArticle+'-'+alerte.article.designation}">Article</td>
+          <td th:text="${#numbers.formatDecimal(alerte.quantiteRecommandee,1,0,'POINT')}">Quantité Recommandé</td>
+          <td th:text="${alerte.article.udm.description}">UDM</td>
+          <td th:text="${#temporals.format(alerte.dateCreation,'dd/MM/yyyy hh:mm')}">Date Alerte</td>
+          <td th:text="${alerte.article.defaultDelayDemand}">Delay demand</td>
+        </tr>
+        <tr th:if="${liste_alerte.isEmpty()}">
+          <td colspan="3" class="text-center text-muted">Aucun article trouvé</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{include/footer :: footer}"></div>
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // Initialisation de DataTable
+    const dataTable = $('#article-table').DataTable({
+
+      pagingType: "simple_numbers",
+      // Activation du défilement horizontal
+      scrollX: true,
+
+      // Empêcher le wrapping du texte
+      responsive: false,
+      columnDefs: [
+        {
+          targets: '_all',
+          className: 'text-nowrap'
+        }
+      ],
+      searching: false, // On désactive la recherche intégrée
+      ordering: true,
+      info: false,
+      lengthMenu: [10, 20, 30, 50],
+      language: {
+        paginate: {
+          previous: 'Précédent',
+          next: 'Suivant'
+        },
+      },
+      processing: true,
+      serverSide: false
+    });
+    // Vérifier si le téléchargement doit être déclenché
+    const csvContent = [[${csvContent}]];
+    const fileName = [[${csvFileName}]];
+    const showDownload = [[${showDownload}]];
+
+    if (showDownload && csvContent && fileName) {
+      // Créer un formulaire temporaire pour soumettre les données
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = '/documents/downloadRepartitionLivraison';
+
+      // Ajouter les paramètres
+      const contentInput = document.createElement('input');
+      contentInput.type = 'hidden';
+      contentInput.name = 'content';
+      contentInput.value = csvContent;
+      form.appendChild(contentInput);
+
+      const fileNameInput = document.createElement('input');
+      fileNameInput.type = 'hidden';
+      fileNameInput.name = 'fileName';
+      fileNameInput.value = fileName;
+      form.appendChild(fileNameInput);
+
+      // Ajouter le formulaire à la page et le soumettre
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      // Afficher un message de confirmation
+      setTimeout(() => {
+        alert('Téléchargement de la prévision terminé !');
+      }, 1000);
+    }
+  });
+</script>
+</body>
+</html>

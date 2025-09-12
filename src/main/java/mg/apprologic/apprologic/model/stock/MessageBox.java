@@ -26,7 +26,7 @@ public class MessageBox {
         {
             this.setType_message("epuisement");
         }
-        else if(this.enStock<this.article.getSeuilMin()){
+        else if(this.enStock<=this.article.getSeuilMin()){
             this.setType_message("seuil");
         }
 

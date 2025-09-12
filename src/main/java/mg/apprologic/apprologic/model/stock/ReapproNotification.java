@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import mg.apprologic.apprologic.model.article.Article;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Entity
 public class ReapproNotification {
@@ -58,5 +60,28 @@ public class ReapproNotification {
 
     public void setLue(boolean lue) {
         this.lue = lue;
+    }
+
+    public static String getHeader()
+    {
+        String toReturn = "";
+        toReturn += "Article;Quantité;UDM;Date Alerte;Delai de demande\n";
+        return toReturn;
+    }
+    public String stringValue()
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String toReturn = "";
+        toReturn += this.getArticle().getCodeArticle()+"-"+this.getArticle().getDesignation()+";"+this.getQuantiteRecommandee().intValue()+";"+this.getArticle().getUdm().getDescription()+";"+this.getDateCreation().format(formatter)+";"+Article.getDefaultDelayDemand()+"\n";
+        return toReturn;
+    }
+
+    public static void setStringBuilder(StringBuilder stringBuilder, List<ReapproNotification> reapproNotificationList)
+    {
+        stringBuilder.append(getHeader());
+        for (ReapproNotification reapproNotification : reapproNotificationList)
+        {
+            stringBuilder.append(reapproNotification.stringValue());
+        }
     }
 }

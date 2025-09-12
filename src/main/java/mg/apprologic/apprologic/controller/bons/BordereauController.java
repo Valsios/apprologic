@@ -76,7 +76,7 @@ public class BordereauController {
     {
         List<BordereauMere> toReturn  = new ArrayList<>();
         String final_id = "";
-        if (!idConsommateur.isEmpty())
+        if (idConsommateur != null && !idConsommateur.isEmpty())
         {
            final_id = idConsommateur;
             if (idConsommateurFille != null && !idConsommateurFille.isEmpty())
@@ -97,7 +97,7 @@ public class BordereauController {
     @GetMapping("/liste")
     public String getListeBordereau(Model model)
     {
-        LocalDateTime debut = LocalDateTime.now().minusMonths(1);
+        LocalDateTime debut = LocalDateTime.now().minusMonths(6);
         LocalDateTime fin = LocalDateTime.now();
         model.addAttribute("debut",debut);
         model.addAttribute("fin",fin);
@@ -143,7 +143,7 @@ public class BordereauController {
 
             //data file repartition
             String fileName = "repartitionBD_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
-            String csvContent = "Article;Gisement;Quantité;Vague\n" + builderRepartition.toString().replace(" ","_");
+            String csvContent = "Article;Gisement;Quantité;Vague;udm\n" + builderRepartition.toString().replace(" ","_");
 
             redirectAttributes.addFlashAttribute("csvContent", csvContent);
             redirectAttributes.addFlashAttribute("csvFileName", fileName);
@@ -220,7 +220,7 @@ public class BordereauController {
             {
                 throw new ExceptionValueNumber("Stock article "+article.getDesignation()+" invalide avec "+stock_article+" en stock avec "+bordereauFille.getQuantiteSortie()+" sorties.");
             }
-            if ((stock_article-bordereauFille.getQuantiteSortie())<article.getSeuilMin())
+            if ((stock_article-bordereauFille.getQuantiteSortie())<=article.getSeuilMin())
             {
                 warning += "\n- Stock critique "+article.getDesignation()+" dépassant son seuil de "+article.getSeuilMin()+" "+article.getUdm().getAcronyme();
             }

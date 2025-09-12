@@ -5,6 +5,7 @@ import mg.apprologic.apprologic.model.bons.BordereauFille;
 import mg.apprologic.apprologic.model.bons.BordereauMere;
 import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.repository.bons.BordereauFilleRepository;
+import mg.apprologic.apprologic.repository.consommateur.ConsommateurRepository;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,10 @@ public class BordereauFilleService {
 
     @Autowired
     BordereauFilleRepository bordereauFilleRepository;
+
+
+    @Autowired
+    ConsommateurRepository consommateurRepository;
 
     public void save(BordereauFille bordereauFille)
     {
@@ -87,17 +92,19 @@ public class BordereauFilleService {
 
     public HashMap<Consommateur,Double> departementPlusConsommateur(List<BordereauFille> bordereauFilleList)
     {
+
+
         HashMap<Consommateur,Double> toReturn = new HashMap<>();
+        List<Consommateur> consommateurList = consommateurRepository.findAll();
+        for (Consommateur consommateur : consommateurList)
+        {
+            toReturn.put(consommateur,0.0);
+        }
         for (BordereauFille bordereauFille : bordereauFilleList)
         {
             Consommateur consommateur = (bordereauFille.getBordereauMere().getDemandeMere().getConsommateur());
-            if (toReturn.containsKey(consommateur))
-            {
-                toReturn.put(consommateur,toReturn.get(consommateur)+bordereauFille.getQuantiteSortie());
-            }
-            else {
-                toReturn.put(consommateur,bordereauFille.getQuantiteSortie());
-            }
+            toReturn.put(consommateur,toReturn.get(consommateur)+bordereauFille.getQuantiteSortie());
+
         }
         System.out.println(toReturn);
         return toReturn;
@@ -115,45 +122,83 @@ public class BordereauFilleService {
 
     public Double getPrevisionJournaliereArticle(Article article) {
 
+
         LocalDateTime minus6Months = LocalDateTime.now().minusMonths(6);
         LocalDateTime present = LocalDateTime.now();
+
         List<BordereauFille> historique = bordereauFilleRepository
                 .getByArticleAndDateBetween(article, minus6Months, present)
                 .stream()
                 .sorted(Comparator.comparing(bf -> bf.getBordereauMere().getDateBordereau()))
                 .toList();
 
-        double alpha = 0.3; // Facteur de pondération (0 < alpha < 1)
-        double prevision = historique.isEmpty() ? 0 : historique.get(0).getQuantiteSortie();
-
-        for (BordereauFille bf : historique) {
-            prevision = alpha * bf.getQuantiteSortie() + (1 - alpha) * prevision;
+        if (historique.isEmpty()) {
+            return 0.0;
         }
+
+        double alpha = 0.3; // Facteur de pondération (0 < alpha < 1)
+        double prevision = historique.get(0).getQuantiteSortie();
+        System.out.println("Prévision : "+prevision+" avec demande réel :"+prevision+" et Date : "+historique.get(0).getBordereauMere().getDateBordereau());
+        for (int i = 1; i < historique.size(); i++) {
+            double demandeReelle = historique.get(i).getQuantiteSortie();
+
+            prevision = alpha * demandeReelle + (1 - alpha) * prevision;
+            System.out.println("Prévision : "+prevision);
+        }
+
+
         return prevision;
     }
 
     public double calculerStockSecurite(Article article) {
         LocalDateTime present = LocalDateTime.now();
         LocalDateTime minus6Months = present.minusMonths(6);
-
         List<BordereauFille> historique = bordereauFilleRepository.getByArticleAndDateBetween(article,minus6Months,present);
         double[] demandes = historique.stream()
                 .mapToDouble(BordereauFille::getQuantiteSortie)
                 .toArray();
-
-        // Exclusion des valeurs hors intervalle [moyenne ± 2σ]
-        DescriptiveStatistics stats = new DescriptiveStatistics(demandes);
-        double lowerBound = stats.getMean() - 2 * stats.getStandardDeviation();
-        double upperBound = stats.getMean() + 2 * stats.getStandardDeviation();
-
+        // Si trop peu de données
+        if (demandes.length < 2) {
+            return 0.0;
+        }
+        Arrays.sort(demandes);
+        double mediane = calculateMedian(demandes);
+        double mad = calculateMAD(demandes, mediane);
+        double lowerBound = mediane - 3*mad;
+        double upperBound = mediane + 3*mad;
         double[] filteredDemandes = Arrays.stream(demandes)
                 .filter(d -> d >= lowerBound && d <= upperBound)
                 .toArray();
-
+        //fall back si trop peu de donnée
+        if(filteredDemandes.length<2)
+        {
+            filteredDemandes = new double[]{mediane};
+        }
         // Recalcul avec données filtrées
         double zScore = 1.65; //1.65 pour 95% de service
-        stats = new DescriptiveStatistics(filteredDemandes);
-        return zScore * stats.getStandardDeviation() * Math.sqrt(Article.getDefaultDelayDemand() / 30.0);
+        DescriptiveStatistics stats = new DescriptiveStatistics(filteredDemandes);
+        return zScore * stats.getStandardDeviation() * Math.sqrt(Article.getDefaultDelayDemand());
+    }
+
+    // Médiane
+    private double calculateMedian(double[] data) {
+        Arrays.sort(data);
+        int n = data.length;
+        if (n % 2 == 0) {
+            return (data[n/2 - 1] + data[n/2]) / 2.0;
+        } else {
+            return data[n/2];
+        }
+    }
+
+    // Median Absolute Deviation
+    private double calculateMAD(double[] data, double median) {
+        double[] absoluteDeviations = new double[data.length];
+        for (int i = 0; i < data.length; i++) {
+            absoluteDeviations[i] = Math.abs(data[i] - median);
+        }
+        Arrays.sort(absoluteDeviations);
+        return calculateMedian(absoluteDeviations);
     }
 
 

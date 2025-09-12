@@ -64,6 +64,18 @@
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <input id="gisementId" name="gisementId" type="hidden">
                         <div class="mb-3">
+                            <label class="form-label">Gisement:</label>
+                            <span id="gisement" class="fw-bold"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Article assigné:</label>
+                            <span id="articleDesignation" class="fw-bold"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Capacité Max Unitaire:</label>
+                            <span id="capaciteMaxUnitaire" class="fw-bold text-primary"></span>
+                        </div>
+                        <div class="mb-3">
                             <label for="articleAssign" class="form-label">Choisir l'article</label>
                             <input class="form-control" type="text" id="articleAssign" name="articleAssign" autocomplete="off" required>
                             <input id="articleAssignId" name="articleAssignId" type="hidden">
@@ -189,7 +201,15 @@
                                 title="Assigner à un nouvel article"
                                 data-bs-toggle="modal"
                                 data-bs-target="#assignModal"
-                                th:data-gisement-id="${occupation.gisement.idGisement}">
+                                th:data-gisement-local="${occupation.gisement.local.designation}"
+                                th:data-gisement-udm="${occupation.article.udm.description}"
+                                th:data-gisement-trave="${occupation.gisement.trave}"
+                                th:data-gisement-alveole="${occupation.gisement.alveole}"
+                                th:data-gisement-etagere="${occupation.gisement.etagere}"
+                                th:data-gisement-bac="${occupation.gisement.bac}"
+                                th:data-gisement-id="${occupation.gisement.idGisement}"
+                                th:data-gisement-article="${occupation.article.codeArticle+'-'+occupation.article.designation}"
+                                th:data-gisement-capacite="${occupation.capaciteMaxUnnitaire}">
                             <i class="bi bi-plus-circle"></i>
                         </button>
                     </td>

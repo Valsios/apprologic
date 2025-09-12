@@ -34,6 +34,15 @@
                     <form id="inventaireForm">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <div class="mb-3">
+                            <label class="form-label">Désignation:</label>
+                            <span id="inventaireArticleDesignation" class="fw-bold"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Stock actuel (système):</label>
+                            <span id="inventaireStockActuel" class="fw-bold text-primary"></span>
+                        </div>
+                        <div class="mb-3">
                             <label for="fileInput" class="form-label">Quantité physique</label>
                             <input class="form-control" type="number" id="fileInput" name="quantite" required>
                         </div>
@@ -83,10 +92,10 @@
                 <tr>
 
                     <th>Désignation</th>
-                    <th class="text-success fw-bold">Entrée(s)</th>
-                    <th class="text-danger fw-bold">Sortie(s)</th>
-                    <th class="text-center">En stock</th>
-                    <th class="text-center">Dérnier mouvement</th>
+                    <th class="text-end fw-bold">Entrée(s)</th>
+                    <th class="text-end fw-bold">Sortie(s)</th>
+                    <th class="text-end">En stock</th>
+                    <th class="text-begin">Dérnier mouvement</th>
                     <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -104,7 +113,9 @@
                     <td class="text-center">
                         <button class="btn btn-action" title="Inventaire"
                                 data-action="inventaire"
-                                th:attr="data-article-id=${stock_fille.article.getIdArticle()}"
+                                th:attr="data-article-id=${stock_fille.article.getIdArticle()},
+                                data-article-designation=${stock_fille.article.codeArticle+'-'+stock_fille.article.designation},
+                                data-article-stock = ${stock_fille.stock_date},data-article-udm = ${stock_fille.article.udm.description}"
                         >
                             <i class="bi bi-list-check"></i>
                         </button>

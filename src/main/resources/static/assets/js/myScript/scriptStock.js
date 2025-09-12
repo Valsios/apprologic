@@ -62,25 +62,27 @@ $(document).ready(function() {
             success: function(response) {
                 const rows = response.map(item => [
                     `<strong>${item.article.codeArticle || ''}</strong>-${item.article.designation || ''}`,
-                    `<span class="text-success fw-bold text-end">${item.total_entree}</span>`,
-                    `<span class="text-danger fw-bold text-end">${item.total_sortie}</span>`,
-                    `<span class="text-center">${item.stock_date}</span>`,
+                    `<span class="text-success fw-bold text-end">${parseFloat(item.total_entree || 0).toFixed(1)}</span>`,
+                    `<span class="text-danger fw-bold text-end">${parseFloat(item.total_sortie || 0).toFixed(1)}</span>`,
+                    `<span class="text-center">${parseFloat(item.stock_date || 0).toFixed(1)}</span>`,
                     `<span class="text-center">${formatDate(item.last_date) || ''}</span>`,
-
                     `
-                <button class="btn btn-action text-center" title="Inventaire"
-                        data-action="inventaire"
-                        data-article-id="${item.article.idArticle}">
-                    <i class="bi bi-list-check"></i>
-                </button>
-                 <form action="/article/dashboard" method="post" style="display: inline-block;">
-                            <input type="hidden" name="_csrf" value="${csrfToken}">
-                            <input type="hidden" name="idArticle" value="${item.article.idArticle}">
-                            <button type="submit" class="btn btn-action ms-1" title="Statistiques">
-                                <i class="bi bi-bar-chart"></i>
-                            </button>
-                        </form>
-                `
+                    <button class="btn btn-action text-center" title="Inventaire"
+                            data-action="inventaire"
+                            data-article-id="${item.article.idArticle}"
+                            data-article-designation="${item.article.codeArticle+'-'+item.article.designation}"
+                            data-article-stock="${item.stock_date}"
+                            data-article-udm="${item.article.udm.description}">
+                        <i class="bi bi-list-check"></i>
+                    </button>
+                    <form action="/article/dashboard" method="post" style="display: inline-block;">
+                        <input type="hidden" name="_csrf" value="${csrfToken}">
+                        <input type="hidden" name="idArticle" value="${item.article.idArticle}">
+                        <button type="submit" class="btn btn-action ms-1" title="Statistiques">
+                            <i class="bi bi-bar-chart"></i>
+                        </button>
+                    </form>
+                    `
                 ]);
 
                 dataTable.clear().rows.add(rows).draw();
@@ -100,6 +102,16 @@ $(document).ready(function() {
     function attachInventaireHandlers() {
         $('#article-table').off('click', '[data-action="inventaire"]').on('click', '[data-action="inventaire"]', function() {
             const articleId = $(this).data('article-id');
+            const articleDesignation = $(this).data('article-designation');
+            const stockActuel = $(this).data('article-stock');
+            const udm = $(this).data('article-udm');
+
+            // Remplir le modal avec les données
+            $('#inventaireArticleId').val(articleId);
+            $('#inventaireArticleDesignation').text(articleDesignation);
+            $('#inventaireStockActuel').text(stockActuel+' '+udm);
+            $('#fileInput').val(''); // Réinitialiser le champ quantité
+
             const modal = new bootstrap.Modal('#inventaireModal');
             $('#submitInventaire').data('article-id', articleId);
             modal.show();

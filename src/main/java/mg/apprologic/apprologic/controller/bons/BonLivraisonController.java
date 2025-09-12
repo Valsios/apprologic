@@ -86,7 +86,7 @@ public class BonLivraisonController {
     @GetMapping("/liste")
     public String getListeBl(Model model)
     {
-        LocalDateTime debut = LocalDateTime.now().minusMonths(1);
+        LocalDateTime debut = LocalDateTime.now().minusMonths(6);
         LocalDateTime fin = LocalDateTime.now();
         model.addAttribute("debut",debut);
         model.addAttribute("fin",fin);
@@ -176,7 +176,7 @@ public class BonLivraisonController {
 
             // Ajouter la répartition aux flash attributes
             String fileName = "repartitionBL_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".csv";
-            String csvContent = "Article;Gisement;quantité\n" + repartitionString.toString().replace(" ","_");
+            String csvContent = "Article;Gisement;quantité;udm\n" + repartitionString.toString().replace(" ","_");
 
             redirectAttributes.addFlashAttribute("csvContent", csvContent);
             redirectAttributes.addFlashAttribute("csvFileName", fileName);

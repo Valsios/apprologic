@@ -1,9 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-    $('#assignModal').on('show.bs.modal', function(event) {
+    $('#assignModal').on('shown.bs.modal', function(event) {
         const button = $(event.relatedTarget);
         const gisementId = button.data('gisement-id');
+        const articleDesignation = button.data('gisement-article');
+        const capaciteMax = button.data('gisement-capacite');
+        const udm = button.data('gisement-udm');
+
+        const gisement = button.data('gisement-local')+'-'+button.data('gisement-trave')+'-'+button.data('gisement-alveole')+'-'+button.data('gisement-etagere')+'-'+button.data('gisement-bac');
+
+
+        $('#articleDesignation').text(articleDesignation);
+        $('#capaciteMaxUnitaire').text(capaciteMax+' '+udm);
         $('#gisementId').val(gisementId);
+        $('#gisement').text(gisement);
+        $('#articleAssign').val('');
+        $('#capacite').val('');
+
+
     });
 
 
@@ -133,7 +147,15 @@ function renderTable(data) {
                         title="Assigner à un nouvel article"
                         data-bs-toggle="modal"
                         data-bs-target="#assignModal"
-                        data-gisement-id="${item.gisement.idGisement}">
+                        data-gisement-udm="${item.article.udm.description}"
+                        data-gisement-local="${item.gisement.local.designation}"
+                        data-gisement-trave="${item.gisement.trave}"
+                        data-gisement-alveole="${item.gisement.alveole}"
+                        data-gisement-etagere="${item.gisement.etagere}"
+                        data-gisement-bac="${item.gisement.bac}"
+                        data-gisement-id="${item.gisement.idGisement}"
+                        data-gisement-article="${item.article.codeArticle+'-'+item.article.designation}"
+                        data-gisement-capacite="${item.capaciteMaxUnnitaire}">
                         <i class="bi bi-plus-circle"></i>
                     </button>`
                 : ''

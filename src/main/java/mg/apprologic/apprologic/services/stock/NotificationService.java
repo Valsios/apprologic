@@ -21,8 +21,9 @@ public class NotificationService {
         reapproNotificationRepository.saveAll(notifications);
     }
 
-    public void markAllAsRead() {
-        List<ReapproNotification> unreadNotifications = reapproNotificationRepository.findByLueFalseOrderByDateCreationDesc();
+
+
+    public void markAllAsRead(List<ReapproNotification> unreadNotifications) {
         unreadNotifications.forEach(notification -> {
             notification.setLue(true);
         });

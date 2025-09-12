@@ -6,6 +6,8 @@ import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
 import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.model.fournisseur.Fournisseur;
 import mg.apprologic.apprologic.repository.bons.BonLivraisonFilleRepository;
+import mg.apprologic.apprologic.repository.consommateur.ConsommateurRepository;
+import mg.apprologic.apprologic.services.fournisseur.FournisseurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,9 @@ public class BonLivraisonFilleService {
 
     @Autowired
     BonLivraisonFilleRepository bonLivraisonFilleRepository;
+
+    @Autowired
+    FournisseurService fournisseurService;
 
     public List<BonLivraisonFille> getByMere(BonLivraisonMere bonLivraisonMere)
     {
@@ -46,6 +51,7 @@ public class BonLivraisonFilleService {
             quantiteRecu += bonLivraisonFille.getQuantite_recu();
 
             lack += (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
+            System.out.println("QUANTITE RECU : "+bonLivraisonFille.getQuantite_recu() +" , QUANTITE DEMANDE : "+bonLivraisonFille.getQuantite_demande()+" SO PERCENTAGE =" +lack);
         }
         lack = lack/bonLivraisonFilleList.size();
 
@@ -57,21 +63,20 @@ public class BonLivraisonFilleService {
     //filtre ARTICLE YEAR
     public HashMap<Fournisseur,Double> tauxSatisfactionLivraison(List<BonLivraisonFille> bonLivraisonFilleList)
     {
+
+
         HashMap<Fournisseur,Double> toReturn = new HashMap<>();
+        List<Fournisseur> fournisseurList = fournisseurService.getAll();
+        for (Fournisseur fournisseur : fournisseurList)
+        {
+            toReturn.put(fournisseur,0.0);
+        }
         for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
         {
             Fournisseur fournisseur = bonLivraisonFille.getBonLivraisonMere().getFournisseur();
             Double satisfactionBl = (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
-            if (toReturn.containsKey(fournisseur))
-            {
-
-                Double newValue = (toReturn.get(fournisseur) + satisfactionBl)/2;
-                toReturn.put(fournisseur,newValue);
-            }
-            else
-            {
-                toReturn.put(fournisseur,satisfactionBl);
-            }
+            Double newValue = (toReturn.get(fournisseur) + satisfactionBl)/2;
+            toReturn.put(fournisseur,newValue);
         }
         return toReturn;
     }

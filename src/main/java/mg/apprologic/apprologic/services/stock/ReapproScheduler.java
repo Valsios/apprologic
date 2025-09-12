@@ -16,6 +16,8 @@ public class ReapproScheduler {
     @Autowired
     private NotificationService notificationService;
 
+
+
     // Exécution chaque jour à 9h
     @Scheduled(cron = "0 0 9 * * *")
     public void checkDailyReappro() {
@@ -24,4 +26,14 @@ public class ReapproScheduler {
             notificationService.saveNotifications(alerts);
         }
     }
+
+
+    /*
+    @Scheduled(cron = "0 * * * * *") // Exécute toutes les minutes
+    public void checkDailyReappro() {
+        List<ReapproNotification> alerts = reapproService.verifierStock();
+        if (!alerts.isEmpty()) {
+            notificationService.saveNotifications(alerts);
+        }
+    }*/
 }

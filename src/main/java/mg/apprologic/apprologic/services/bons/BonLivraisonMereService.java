@@ -5,6 +5,7 @@ import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
 import mg.apprologic.apprologic.model.fournisseur.Fournisseur;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.repository.bons.BonLivraisonMereRepository;
+import mg.apprologic.apprologic.services.fournisseur.FournisseurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,9 @@ public class BonLivraisonMereService {
     @Autowired
     BonLivraisonFilleService bonLivraisonFilleService;
 
+    @Autowired
+    FournisseurService fournisseurService;
+
 
     @Transactional(readOnly = true)
 
@@ -33,20 +37,19 @@ public class BonLivraisonMereService {
     //manomboka eto
     public HashMap<Fournisseur,Double> satisfactionFournisseurGlobal(List<BonLivraisonMere> bonLivraisonMereList)
     {
+
         HashMap<Fournisseur,Double> toReturn = new HashMap<>();
+        List<Fournisseur> fournisseurList= fournisseurService.getAll();
+        for (Fournisseur fournisseur : fournisseurList)
+        {
+            toReturn.put(fournisseur,0.0);
+        }
         for (BonLivraisonMere bonLivraisonMere : bonLivraisonMereList)
         {
             Double satisfactionLivraison = satisfactionLivraison(bonLivraisonMere);
             Fournisseur fournisseur = bonLivraisonMere.getFournisseur();
-            if (toReturn.containsKey(fournisseur))
-            {
-                Double newValue = (toReturn.get(fournisseur)+satisfactionLivraison)/2;
-                toReturn.put(fournisseur,newValue);
-            }
-            else
-            {
-                toReturn.put(fournisseur,satisfactionLivraison);
-            }
+            Double newValue = (toReturn.get(fournisseur)+satisfactionLivraison)/2;
+            toReturn.put(fournisseur,newValue);
         }
         return toReturn;
     }

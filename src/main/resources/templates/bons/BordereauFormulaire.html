@@ -133,12 +133,12 @@
                             <td>
                                 <input type="number" th:name="|lignes${ligne.idDemandeFille}.quantiteLivree|"
                                        class="form-control" min="0" th:max="${ligne.quantite}"
-                                       th:value="${ligne.quantite}">
+                                       th:value="${ligne.quantite}" step="0.01">
                             </td>
                             <td>
                                 <input type="number" th:name="|lignes${ligne.idDemandeFille}.prixUnitaire|"
                                        th:value="${#numbers.formatDecimal(ligne.article.prixPondere, 1, 2, 'POINT')}"
-                                       class="form-control" min="0">
+                                       class="form-control" min="0" step="0.01">
                             </td>
                             <td th:text="${ligne.article.udm.description}"></td>
                         </tr>

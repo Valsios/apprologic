@@ -62,6 +62,7 @@ public class DahsboardController {
         model.addAttribute("countLivraison",countLivraison);
         model.addAttribute("satisfactionTotal",bonLivraisonMereService.satisfactionParLivraison(bonLivraisonMereList));
         model.addAttribute("evolutionDepense",bordereauMereService.evolutionDepense(bordereauMereList));
+        model.addAttribute("valeurConsommation",bordereauMereService.consommationValeurAll(consommationParDepartement));
 
         return "/analyse/DashboardGlobal";
 
@@ -97,6 +98,7 @@ public class DahsboardController {
         model.addAttribute("countLivraison",countLivraison);
         model.addAttribute("satisfactionTotal",bonLivraisonMereService.satisfactionParLivraison(bonLivraisonMereList));
         model.addAttribute("evolutionDepense",bordereauMereService.evolutionDepense(bordereauMereList));
+        model.addAttribute("valeurConsommation",bordereauMereService.consommationValeurAll(consommationParDepartement));
 
         return "/analyse/DashboardGlobal";
 

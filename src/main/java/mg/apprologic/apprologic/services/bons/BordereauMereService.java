@@ -6,12 +6,15 @@ import mg.apprologic.apprologic.model.consommateur.Consommateur;
 import mg.apprologic.apprologic.repository.bons.BordereauFilleRepository;
 import mg.apprologic.apprologic.repository.bons.BordereauMereRepository;
 import mg.apprologic.apprologic.repository.bons.DemandeMereRepository;
+import mg.apprologic.apprologic.repository.consommateur.ConsommateurRepository;
+import mg.apprologic.apprologic.services.consommateur.ConsommateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BordereauMereService {
@@ -24,6 +27,9 @@ public class BordereauMereService {
 
     @Autowired
     DemandeMereService demandeMereService;
+
+    @Autowired
+    ConsommateurRepository consommateurRepository;
 
 
     //evolution expense
@@ -87,22 +93,31 @@ public class BordereauMereService {
     }
 
     //ito averina
+
+    public double consommationValeurAll(HashMap<?,Double> consommation)
+    {
+        double toReturn = 0.0;
+        for (Map.Entry<?,Double> map : consommation.entrySet())
+        {
+            toReturn += map.getValue();
+        }
+        return toReturn;
+    }
     public HashMap<Consommateur,Double> consommationValeurParDepartement(List<BordereauMere> bordereauMereList)
     {
+
         HashMap<Consommateur,Double> toReturn = new HashMap<>();
+        List<Consommateur> consommateurList = consommateurRepository.findAll();
+        for (Consommateur consommateur : consommateurList)
+        {
+            toReturn.put(consommateur,0.0);
+        }
         for (BordereauMere bordereauMere : bordereauMereList)
         {
             Double valeurBordereau = valeurBordereau(bordereauMere);
             Consommateur consommateur = bordereauMere.getDemandeMere().getConsommateur();
-            if (toReturn.containsKey(consommateur))
-            {
-                Double newValue = toReturn.get(consommateur) + valeurBordereau;
-                toReturn.put(consommateur,newValue);
-            }
-            else
-            {
-                toReturn.put(consommateur,valeurBordereau);
-            }
+            Double newValue = toReturn.get(consommateur) + valeurBordereau;
+            toReturn.put(consommateur,newValue);
         }
         return toReturn;
     }

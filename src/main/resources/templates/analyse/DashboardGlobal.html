@@ -219,6 +219,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="value-total-section mt-3 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-currency-exchange text-warning me-2"></i>
+                                <span class="fw-semibold">Valeur Totale :</span>
+                            </div>
+                            <div>
+                                <span class="h5 mb-0 fw-bold text-warning" th:text="${' ' + #numbers.formatDecimal(valeurConsommation, 1, 2, 'POINT') + ' MGA'}"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Graphique de consommation par département -->
@@ -285,7 +296,40 @@
 
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier si le téléchargement doit être déclenché
+        const csvContent = [[${csvContent}]];
+        const fileName = [[${csvFileName}]];
+        const showDownload = [[${showDownload}]];
 
+        if (showDownload && csvContent && fileName) {
+            // Créer un formulaire temporaire pour soumettre les données
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = '/documents/downloadRepartitionLivraison';
+
+            // Ajouter les paramètres
+            const contentInput = document.createElement('input');
+            contentInput.type = 'hidden';
+            contentInput.name = 'content';
+            contentInput.value = csvContent;
+            form.appendChild(contentInput);
+
+            const fileNameInput = document.createElement('input');
+            fileNameInput.type = 'hidden';
+            fileNameInput.name = 'fileName';
+            fileNameInput.value = fileName;
+            form.appendChild(fileNameInput);
+
+            // Ajouter le formulaire à la page et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+
+            // Afficher un message de confirmation
+            setTimeout(() => {
+                alert('Téléchargement de la prévision terminé !');
+            }, 1000);
+        }
 
         // Fonction pour animer les barres de progression
         function animateProgressBars() {
