@@ -50,10 +50,9 @@ public class BonLivraisonFilleService {
             quantiteCommande += bonLivraisonFille.getQuantite_demande();
             quantiteRecu += bonLivraisonFille.getQuantite_recu();
 
-            lack += (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
             System.out.println("QUANTITE RECU : "+bonLivraisonFille.getQuantite_recu() +" , QUANTITE DEMANDE : "+bonLivraisonFille.getQuantite_demande()+" SO PERCENTAGE =" +lack);
         }
-        lack = lack/bonLivraisonFilleList.size();
+        lack = (quantiteRecu/quantiteCommande)*100;
 
         toReturn.put("taux",lack);
         toReturn.put("quantiteCommande",quantiteCommande);
@@ -61,6 +60,18 @@ public class BonLivraisonFilleService {
         return toReturn;
     }
     //filtre ARTICLE YEAR
+
+    public boolean checkIfExistFille(List<BonLivraisonFille> bonLivraisonFilleList,Fournisseur fournisseur)
+    {
+        for(BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
+        {
+            if (fournisseur == bonLivraisonFille.getBonLivraisonMere().getFournisseur())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     public HashMap<Fournisseur,Double> tauxSatisfactionLivraison(List<BonLivraisonFille> bonLivraisonFilleList)
     {
 
@@ -69,13 +80,26 @@ public class BonLivraisonFilleService {
         List<Fournisseur> fournisseurList = fournisseurService.getAll();
         for (Fournisseur fournisseur : fournisseurList)
         {
-            toReturn.put(fournisseur,0.0);
+            if (checkIfExistFille(bonLivraisonFilleList,fournisseur))
+            {
+                toReturn.put(fournisseur,100.0);
+            }
+            else
+            {
+                toReturn.put(fournisseur,0.0);
+            }
+
         }
+
         for (BonLivraisonFille bonLivraisonFille : bonLivraisonFilleList)
         {
             Fournisseur fournisseur = bonLivraisonFille.getBonLivraisonMere().getFournisseur();
+            System.out.println("QTE reçu depuis : "+fournisseur.getNom()+" "+bonLivraisonFille.getQuantite_recu() +" comparé "+bonLivraisonFille.getQuantite_demande());
+
             Double satisfactionBl = (bonLivraisonFille.getQuantite_recu()/bonLivraisonFille.getQuantite_demande())*100;
+            System.out.println("Satisfaction alord :"+satisfactionBl);
             Double newValue = (toReturn.get(fournisseur) + satisfactionBl)/2;
+
             toReturn.put(fournisseur,newValue);
         }
         return toReturn;

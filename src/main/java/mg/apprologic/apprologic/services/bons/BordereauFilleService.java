@@ -79,9 +79,9 @@ public class BordereauFilleService {
         {
             quantiteDemande += bordereauFille.getDemandeFille().getQuantite();
             quantiteSortie += bordereauFille.getQuantiteSortie();
-            lack += (bordereauFille.getQuantiteSortie()/bordereauFille.getDemandeFille().getQuantite())*100;
+
         }
-        lack = lack / bordereauFilleList.size();
+        lack = (quantiteSortie/quantiteDemande)*100;
 
         toReturn.put("tauxSatisfactionDemande",lack);
         toReturn.put("quantiteDemande",quantiteDemande);
@@ -172,7 +172,7 @@ public class BordereauFilleService {
         //fall back si trop peu de donnée
         if(filteredDemandes.length<2)
         {
-            filteredDemandes = new double[]{mediane};
+            return 0.0;
         }
         // Recalcul avec données filtrées
         double zScore = 1.65; //1.65 pour 95% de service

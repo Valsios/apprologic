@@ -2,6 +2,7 @@ package mg.apprologic.apprologic.services.bons;
 
 import mg.apprologic.apprologic.model.bons.BonLivraisonFille;
 import mg.apprologic.apprologic.model.bons.BonLivraisonMere;
+import mg.apprologic.apprologic.model.bons.BordereauMere;
 import mg.apprologic.apprologic.model.fournisseur.Fournisseur;
 import mg.apprologic.apprologic.model.stock.StockMere;
 import mg.apprologic.apprologic.repository.bons.BonLivraisonMereRepository;
@@ -34,6 +35,20 @@ public class BonLivraisonMereService {
         return bonLivraisonMereRepository.getByFournisseurDateNative(idFourniseur,debut,fin);
     }
 
+    public boolean checkIfExist(List<BonLivraisonMere> bonLivraisonMereList,Fournisseur fournisseur)
+    {
+        for(BonLivraisonMere bonLivraisonMere : bonLivraisonMereList)
+        {
+            if (fournisseur == bonLivraisonMere.getFournisseur())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
     //manomboka eto
     public HashMap<Fournisseur,Double> satisfactionFournisseurGlobal(List<BonLivraisonMere> bonLivraisonMereList)
     {
@@ -42,14 +57,23 @@ public class BonLivraisonMereService {
         List<Fournisseur> fournisseurList= fournisseurService.getAll();
         for (Fournisseur fournisseur : fournisseurList)
         {
-            toReturn.put(fournisseur,0.0);
+            if (checkIfExist(bonLivraisonMereList,fournisseur))
+            {
+                toReturn.put(fournisseur,100.0);
+            }
+            else{
+                toReturn.put(fournisseur,0.0);
+            }
+
         }
+
         for (BonLivraisonMere bonLivraisonMere : bonLivraisonMereList)
         {
             Double satisfactionLivraison = satisfactionLivraison(bonLivraisonMere);
             Fournisseur fournisseur = bonLivraisonMere.getFournisseur();
             Double newValue = (toReturn.get(fournisseur)+satisfactionLivraison)/2;
             toReturn.put(fournisseur,newValue);
+
         }
         return toReturn;
     }
