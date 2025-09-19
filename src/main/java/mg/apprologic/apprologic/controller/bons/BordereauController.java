@@ -87,7 +87,7 @@ public class BordereauController {
         }
         model.addAttribute("debut",LocalDateTime.parse(debut));
         model.addAttribute("fin",LocalDateTime.parse(fin));
-        toReturn = bordereauMereService.getByConsommateurDate(idConsommateur,debut,fin);
+        toReturn = bordereauMereService.getByConsommateurDate(final_id,debut,fin);
 
         model.addAttribute("consommateur_liste",consommateurService.getAllMere());
         model.addAttribute("bordereau_liste",toReturn);

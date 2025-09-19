@@ -208,13 +208,13 @@
                             <div class="col-6">
                                 <div class="d-flex align-items-center">
                                     <div class="legend-color rounded-circle me-2" style="background-color: #3498db; width: 12px; height: 12px;"></div>
-                                    <small>Sorties: <span class="fw-bold" th:text="${chiffreAboutDemande.get('sortie')}"></span></small>
+                                    <small>Sorties: <span class="fw-bold" th:text="${#numbers.formatDecimal(chiffreAboutDemande.get('sortie'),1,0,'POINT')}"></span></small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="d-flex align-items-center">
                                     <div class="legend-color rounded-circle me-2" style="background-color: #2ecc71; width: 12px; height: 12px;"></div>
-                                    <small>Non Sorties: <span class="fw-bold" th:text="${chiffreAboutDemande.get('nonSortie')}"></span></small>
+                                    <small>Non Sorties: <span class="fw-bold" th:text="${#numbers.formatDecimal(chiffreAboutDemande.get('nonSortie'),1,0,'POINT')}"></span></small>
                                 </div>
                             </div>
                         </div>

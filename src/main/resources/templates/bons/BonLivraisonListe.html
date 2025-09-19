@@ -190,10 +190,9 @@
         form.submit();
         document.body.removeChild(form);
 
-        // Afficher un message de confirmation
         setTimeout(() => {
-            alert('Téléchargement de la répartition terminé !');
-        }, 1000);
+            window.location.reload();
+        }, 4000);
     }
 </script>
 <script src="/assets/js/myScript/scriptFileLivraison.js"></script>
