@@ -36,7 +36,7 @@ public class NotificationController {
         model.addAttribute("liste_alerte",reapproNotificationList);
         model.addAttribute("showDownload", true);
         notificationService.markAllAsRead(reapproNotificationList);
-        return "/article/MessageReapprovisionnement";
+        return "article/MessageReapprovisionnement";
     }
     @GetMapping("/count")
     @ResponseBody

@@ -24,7 +24,7 @@ public class MessageController {
     public String getMessages(Model model)
     {
         model.addAttribute("messageBoxList",allMessages());
-        return "/article/MessageBox";
+        return "article/MessageBox";
     }
 
     public List<MessageBox> allMessages()

@@ -64,7 +64,7 @@ public class DahsboardController {
         model.addAttribute("evolutionDepense",bordereauMereService.evolutionDepense(bordereauMereList));
         model.addAttribute("valeurConsommation",bordereauMereService.consommationValeurAll(consommationParDepartement));
 
-        return "/analyse/DashboardGlobal";
+        return "analyse/DashboardGlobal";
 
     }
     @PostMapping("/filtrer")
@@ -100,7 +100,7 @@ public class DahsboardController {
         model.addAttribute("evolutionDepense",bordereauMereService.evolutionDepense(bordereauMereList));
         model.addAttribute("valeurConsommation",bordereauMereService.consommationValeurAll(consommationParDepartement));
 
-        return "/analyse/DashboardGlobal";
+        return "analyse/DashboardGlobal";
 
     }
 }

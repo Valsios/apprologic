@@ -19,6 +19,7 @@ public class ReapproScheduler {
 
 
     // Exécution chaque jour à 9h
+
     @Scheduled(cron = "0 0 9 * * *")
     public void checkDailyReappro() {
         List<ReapproNotification> alerts = reapproService.verifierStock();
@@ -28,8 +29,9 @@ public class ReapproScheduler {
     }
 
 
-    /*
-    @Scheduled(cron = "0 * * * * *") // Exécute toutes les minutes
+
+
+   /* @Scheduled(cron = "0 * * * * *") // Exécute toutes les minutes
     public void checkDailyReappro() {
         List<ReapproNotification> alerts = reapproService.verifierStock();
         if (!alerts.isEmpty()) {

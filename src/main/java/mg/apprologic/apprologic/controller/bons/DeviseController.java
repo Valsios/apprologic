@@ -19,7 +19,7 @@ public class DeviseController {
     {
         model.addAttribute("devise",new Devise());
         model.addAttribute("devise_liste",deviseService.getAll());
-        return "/bons/DeviseGestion";
+        return "bons/DeviseGestion";
     }
 
     @PostMapping("/updateCours")

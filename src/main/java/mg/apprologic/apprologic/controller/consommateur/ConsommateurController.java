@@ -54,7 +54,7 @@ public class ConsommateurController {
         model.addAttribute("availableYears", availableYears);
         model.addAttribute("consommations",consommations );
 
-        return "/consommateur/Consommations";
+        return "consommateur/Consommations";
     }
 
     @PostMapping("/save")
@@ -79,7 +79,7 @@ public class ConsommateurController {
 
         model.addAttribute("consommateurList",consommateurList);
         model.addAttribute("new_consommateur",consommateurService.getById(idConsommateur));
-        return "/consommateur/Organigramme";
+        return "consommateur/Organigramme";
     }
 
     @GetMapping("/organigramme")

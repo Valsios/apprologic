@@ -54,7 +54,7 @@ public class StockMereService {
 
             AnomalieStock anomalieStock = new AnomalieStock();
             anomalieStock.setArticle(stockFille.getArticle());
-            anomalieStock.setStock_theorique(stockFilleService.stock_theorique_article_date(stockMere.getDateMouvement(),stockFille.getArticle()));
+            anomalieStock.setStock_theorique(stockFilleService.stock_article_date(stockMere.getDateMouvement().minusSeconds(10),stockFille.getArticle()));
             anomalieStock.setStock_physique(stockFilleService.stock_article_date(stockMere.getDateMouvement(),stockFille.getArticle()));
             anomalieStock.setDescription(stockMere.getDescription());
             if (anomalieStock.getStock_theorique() - anomalieStock.getStock_physique()== 0.0)
