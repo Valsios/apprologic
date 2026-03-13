@@ -67,7 +67,7 @@
                                 <div class="mb-3">
                                     <label for="consommateur" class="form-label">Service</label>
                                     <select class="form-select" id="consommateur" name="consommateur" required>
-                                        <option value="" selected disabled>Sélectionnez un Consommateur</option>
+                                        <option value="" selected disabled>Sélectionnez un Service</option>
                                         <option th:each="consommateur : ${consommateur_liste}"
                                                 th:value="${consommateur.idConsommateur}"
                                                 th:text="${consommateur.description}">

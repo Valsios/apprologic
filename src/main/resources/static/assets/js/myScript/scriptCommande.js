@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedOption = this.options[this.selectedIndex];
 
         // Reset le select enfant
-        enfantSelect.innerHTML = `<option value="${this.value}" selected>Sélectionnez un site/filiale (optionnel)</option>`;
+        enfantSelect.innerHTML = `<option value="${this.value}" selected>Sélectionnez une unité (optionnel)</option>`;
         enfantContainer.style.display = 'none';
 
         console.log(`/consommateur/enfants/${this.value}`);

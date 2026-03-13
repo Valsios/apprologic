@@ -97,7 +97,7 @@ public class BordereauController {
     @GetMapping("/liste")
     public String getListeBordereau(Model model)
     {
-        LocalDateTime debut = LocalDateTime.now().minusMonths(6);
+        LocalDateTime debut = LocalDateTime.now().minusDays(2);
         LocalDateTime fin = LocalDateTime.now();
         model.addAttribute("debut",debut);
         model.addAttribute("fin",fin);

@@ -14,6 +14,5 @@ public interface ArticleRepository extends JpaRepository<Article,Integer> {
 
     public List<Article> getArticleByDesignationContainingIgnoreCase(String designation);
     public List<Article> getArticleByCodeArticleContainingIgnoreCase(String codeArticle);
-
     List<Article> findByDesignationContainingIgnoreCaseOrCodeArticleContaining(String designation, String codeArticle);
 }

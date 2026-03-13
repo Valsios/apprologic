@@ -93,7 +93,7 @@ public class ConsommateurController {
 
         model.addAttribute("consommateurList",consommateurList);
         model.addAttribute("new_consommateur",new Consommateur());
-        return "/consommateur/Organigramme";
+        return "consommateur/Organigramme";
 
     }
     @GetMapping("/enfants/{idMere}")
